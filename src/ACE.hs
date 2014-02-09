@@ -195,14 +195,17 @@ data Apposition
   | AppositionQuote QuotedString
   deriving (Show)
 
+-- | A simple quoted string.
 data QuotedString
   = QuotedString String
   deriving (Show)
 
+-- | Some variable.
 data Variable
   = Variable String
   deriving (Show)
 
+-- | A relative clause coordination.
 data RelativeClauseCoord =
   RelativeClauseCoord RelativeClause (Maybe (Coord,RelativeClauseCoord))
   deriving (Show)
