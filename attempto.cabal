@@ -1,7 +1,7 @@
 name:                attempto
 version:             0.0.0
-synopsis:            ACE
-description:         ACE
+synopsis:            Attempto Controlled English
+description:         Attempto Controlled English
 license:             BSD3
 license-file:        LICENSE
 author:              Chris Done
@@ -15,7 +15,10 @@ library
   hs-source-dirs:    src/
   ghc-options:       -Wall -O2
   exposed-modules:   ACE
-  build-depends:     base >= 4 && <5
+  build-depends:     base >= 4 && <5,
+                     parsec,
+                     semigroups,
+                     data-default
 
 executable attempto
   hs-source-dirs:    src/
