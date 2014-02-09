@@ -134,16 +134,57 @@ topicalizedSentence =
   (TopicalizedSentenceComposite <$> compositeSentence)
 
 data UniversalTopic =
-  UniversalTopic {-TODO-}
+  UniversalTopic UniversalGlobalQuantor N'
   deriving (Show)
 
-universalTopic = undefined
+universalTopic =
+  UniversalTopic <$> universalGlobalQuantor
+                 <*> n'
 
-data CompositeSentence =
-  CompositeSentence {-TODO-}
+data CompositeSentence
+  = CompositeSentenceCond ConditionalSentence
+  | CompositeSentenceNeg NegatedSentence
+  | CompositeSentence Sentence
   deriving (Show)
 
-compositeSentence = undefined
+compositeSentence =
+  compositeSentenceCond <|>
+  compositeSentenceNeg <|>
+  compositeSentence
+  where compositeSentenceCond =
+          CompositeSentenceCond <$> conditionalSentence
+        compositeSentenceNeg =
+          CompositeSentenceNeg <$> negatedSentence
+        compositeSentence =
+          CompositeSentence <$> sentence
+
+data ConditionalSentence =
+  ConditionalSentence SentenceCoord
+                      SentenceCoord
+  deriving (Show)
+
+conditionalSentence =
+  ConditionalSentence
+    <$> (string "if " *> sentenceCoord)
+    <*> (string "then " *> sentenceCoord)
+
+data NegatedSentence =
+  NegatedSentence SentenceCoord
+  deriving (Show)
+
+negatedSentence =
+  NegatedSentence
+    <$> (string "it is not the case that " *>
+         sentenceCoord)
+
+data Sentence =
+  Sentence NPCoord VPCoord
+  deriving (Show)
+
+sentence =
+  Sentence
+    <$> (npCoord <* string " ")
+    <*> vpCoord
 
 data ExistentialTopic =
   ExistentialTopic ExistentialGlobalQuantor
@@ -157,107 +198,275 @@ existentialTopic =
   ExistentialTopic <$> existentialGlobalQuantor
                    <*> npCoord
 
-npCoord = undefined
-
-data NPCoord
-  = NPcoordDistributed DistributiveMarker UnmarkedNPCoord
+data NPCoord =
+  NPCoordDistributed DistributiveMarker UnmarkedNPCoord
   deriving (Show)
 
-data UnmarkedNPCoord
-  = UnmarkedNPCoord NP UnmarkedNPCoord
+npCoord =
+  NPCoordDistributed
+    <$> distributiveMarker
+    <*> unmarkedNPCoord
+
+data UnmarkedNPCoord =
+  UnmarkedNPCoord NP UnmarkedNPCoord
   deriving (Show)
+
+unmarkedNPCoord =
+  UnmarkedNPCoord
+    <$> np
+    <*> unmarkedNPCoord
 
 -- | Noun-phrase.
-data NP = NP Specifier N'
+data NP =
+  NP Specifier N'
   deriving (Show)
 
+np =
+  NP <$> specifier
+     <*> n'
+
 -- | Modified noun.
-data N' = N' (Maybe AdjectiveCoord) N (Maybe ApposCoord) (Maybe PP) (Maybe RelativeClauseCoord)
+data N' =
+  N' (Maybe AdjectiveCoord)
+     N
+     (Maybe ApposCoord)
+     (Maybe PP)
+     (Maybe RelativeClauseCoord)
   deriving (Show)
+
+n' =
+  N' <$> optional adjectiveCoord
+     <*> n
+     <*> optional apposCoord
+     <*> optional pp
+     <*> optional relativeClauseCoord
 
 -- | A noun.
 data N = N String
   deriving (Show)
 
+n =
+  N <$> string "<noun>"
+
 -- | Prepositional phrase.
 data PP = PP Preposition NPCoord
   deriving (Show)
+
+pp =
+  PP <$> preposition
+     <*> npCoord
 
 -- | A preposition.
 data Preposition = Preposition String
   deriving (Show)
 
+preposition =
+  Preposition <$> string "<preposition>"
+
 data ApposCoord = ApposCoord Apposition (Maybe ApposCoord)
   deriving (Show)
+
+apposCoord =
+  ApposCoord
+    <$> apposition
+    <*> optional (string "and " *> apposCoord)
 
 data Apposition
   = AppositionVar Variable
   | AppositionQuote QuotedString
   deriving (Show)
 
+apposition =
+  string " " *>
+  (try (AppositionVar <$> variable) <|>
+   (AppositionQuote <$> quotedString))
+
 -- | A simple quoted string.
-data QuotedString
-  = QuotedString String
+data QuotedString =
+  QuotedString String
   deriving (Show)
 
+quotedString =
+  QuotedString <$> string "<quoted-string>"
+
 -- | Some variable.
-data Variable
-  = Variable String
+data Variable =
+  Variable String
   deriving (Show)
+
+variable =
+  Variable <$> string "<variable>"
 
 -- | A relative clause coordination.
 data RelativeClauseCoord =
   RelativeClauseCoord RelativeClause (Maybe (Coord,RelativeClauseCoord))
   deriving (Show)
 
-data PossessiveNPCoord =
-  PossessiveNPCoord GenitiveNPCoord SaxonGenitiveMarker
+relativeClauseCoord =
+  RelativeClauseCoord
+    <$> relativeClause
+    <*> optional ((,) <$> coord
+                      <*> relativeClauseCoord)
+
+data PossessiveNPCoord
+  = PossessiveNPCoordGen GenitiveNPCoord
+  | PossessiveNPCoordPronoun PossessivePronounCoord
   deriving (Show)
+
+possessiveNPCoord =
+  PossessiveNPCoordGen <$> genitiveNPCoord
+
+data GenitiveNPCoord
+  = GenitiveNPCoord GenitiveSpecifier GenitiveN' GenitiveTail
+  | GenitiveNPCoordName ProperName GenitiveTail
+  deriving (Show)
+
+data ProperName =
+  ProperName String
+  deriving (Show)
+
+properName =
+  ProperName <$> string "<proper-name>"
+
+genitiveNPCoord =
+  try specifier <|> name
+  where specifier =
+          GenitiveNPCoord
+            <$> genitiveSpecifier
+            <*> genitiveN'
+            <*> genitiveTail
+        name =
+          GenitiveNPCoordName
+            <$> properName
+            <*> genitiveTail
+
+data PossessivePronounCoord =
+  PossessivePronounCoord PossessivePronoun
+                         (Maybe PossessivePronounCoord)
+  deriving (Show)
+
+possessivePronounCoord =
+  PossessivePronounCoord
+    <$> possessivePronoun
+    <*> optional (try (string " and " *> possessivePronounCoord))
+
+data GenitiveTail
+  = GenitiveTailSaxonTail SaxonGenitiveTail
+  | GenitiveTailCoordtail GenitiveCoordTail
+  deriving (Show)
+
+genitiveTail =
+  try (GenitiveTailSaxonTail <$> saxonGenitiveTail) <|>
+  (GenitiveTailCoordtail <$> genitiveCoordTail)
+
+data GenitiveCoordTail =
+  GenitiveCoordTail GenitiveNPCoord
+  deriving (Show)
+
+genitiveCoordTail =
+  GenitiveCoordTail <$> (string " and " *> genitiveNPCoord)
+
+data SaxonGenitiveTail =
+  SaxonGenitiveTail SaxonGenitiveMarker (Maybe (GenitiveN',SaxonGenitiveTail))
+  deriving (Show)
+
+saxonGenitiveTail =
+  SaxonGenitiveTail
+    <$> saxonGenitiveMarker
+    <*> optional (try ((,) <$> genitiveN'
+                           <*> saxonGenitiveTail))
 
 data RelativeClause =
   RelativeClause VPCoord
   deriving (Show)
 
+relativeClause =
+  RelativeClause <$> vpCoord
+
 -- | Verb phrase coordination.
-data VPCoord =
-  VPCoord VP Coord (Maybe VPCoord) -- TODO: Check that this Maybe
-                                   -- guess is correct.
+data VPCoord
+  = VPCoord' VP Coord VPCoord
+  | VPCoordVP VP
   deriving (Show)
 
-data GenitiveNPCoord =
-  GenitiveNPCoord GenitiveNP (Maybe GenitiveNPCoord)
+vpCoord =
+  (VPCoord'
+     <$> vp
+     <*> coord
+     <*> vpCoord) <|>
+  VPCoordVP <$> vp
+
+data GenitiveSpecifier
+  = GenitiveSpecifierD Determiner
+  | GenitiveSpecifierPPC PossessivePronounCoord
+  | GenitiveSpecifierN Number
   deriving (Show)
 
-data GenitiveNP =
-  GenitiveNP Specifier GenitiveN'
-  deriving (Show)
+genitiveSpecifier =
+  try (GenitiveSpecifierD <$> determiner) <|>
+  try (GenitiveSpecifierPPC <$> possessivePronounCoord) <|>
+  GenitiveSpecifierN <$> number
 
 data GenitiveN' =
-  GenitiveN' (Maybe AdjectiveCoord) N (Maybe ApposCoord)
+  GenitiveN' (Maybe AdjectiveCoord)
+             N
+             (Maybe ApposCoord)
   deriving (Show)
+
+genitiveN' =
+  GenitiveN'
+    <$> optional (try (adjectiveCoord <* string " "))
+    <*> n
+    <*> optional (try apposCoord)
 
 -- | Verb phrase.
 data VP =
   VP V'
   deriving (Show)
 
+vp =
+  VP <$> v'
+
 -- | Verb.
 data V' =
   V' (Maybe AdverbCoord) ComplV [VModifier] -- What is *?
   deriving (Show)
 
+v' =
+  V' <$> optional adverbCoord
+     <*> complV
+     <*> many vModifier
+
 data AdverbCoord =
   AdverbCoord Adverb (Maybe AdverbCoord)
   deriving (Show)
+
+adverbCoord =
+  AdverbCoord <$> adverb
+              <*> optional adverbCoord
 
 data ComplV =
   ComplV IntransitiveV
   deriving (Show)
 
+complV =
+  ComplV <$> intransitiveV
+
 -- | Intransitive verb.
 data IntransitiveV =
   IntransitiveV String
   deriving (Show)
+
+intransitiveV =
+  IntransitiveV <$> string "<intransitive-verb>"
+
+-- | Intransitive adjective.
+data IntransitiveAdjective =
+  IntransitiveAdjective String
+  deriving (Show)
+
+intransitiveAdjective =
+  IntransitiveAdjective <$> string "<intransitive-adjective>"
 
 data VModifier
   = VModifierVC AdverbCoord
@@ -265,14 +474,31 @@ data VModifier
   | VModifierAVPP AdverbialPP
   deriving (Show)
 
+vModifier =
+  vModifierVC <|> vModifierPP <|> vModifierAVPP
+  where vModifierVC =
+          VModifierVC <$> adverbCoord
+        vModifierPP =
+          VModifierPP <$> pp
+        vModifierAVPP =
+          VModifierAVPP <$> adverbialPP
+
 data AdverbialPP =
   AdverbialPP Preposition AdverbCoord
   deriving (Show)
+
+adverbialPP =
+  AdverbialPP
+    <$> preposition
+    <*> adverbCoord
 
 -- | An adverb.
 data Adverb =
   Adverb String
   deriving (Show)
+
+adverb =
+  Adverb <$> string "<adverb>"
 
 data Specifier
   = SpecifyDeterminer Determiner
@@ -280,19 +506,45 @@ data Specifier
   | SpecifyNumberP NumberP
   deriving (Show)
 
+specifier =
+  try specifierDeterminer <|>
+  try specifierPossessive <|>
+  specifierNumber
+  where specifierDeterminer =
+          SpecifyDeterminer <$> determiner
+        specifierPossessive =
+          SpecifyPossessive <$> possessiveNPCoord
+        specifierNumber =
+          SpecifyNumberP <$> numberP
+
 -- | Adjective coordination.
-data AdjectiveCoord = AdjectiveCoord
+data AdjectiveCoord =
+  AdjectiveCoord IntransitiveAdjective
+                 (Maybe AdjectiveCoord)
   deriving (Show)
+
+adjectiveCoord =
+  AdjectiveCoord
+    <$> intransitiveAdjective
+    <*> optional (try (string " and " *> adjectiveCoord))
 
 -- | A number phrase.
 data NumberP =
   NumberP (Maybe GeneralizedQuantor) Number
   deriving (Show)
 
--- | Some integer number.
+numberP =
+  NumberP
+    <$> optional generalizedQuantor
+    <*> (number <* string " ")
+
+-- | Some positive integer number.
 data Number =
   Number Integer
   deriving (Show)
+
+number =
+  (Number . read) <$> many1 digit
 
 -- | There is / there are.
 data ExistentialGlobalQuantor = ExistentialGlobalQuantor Copula
@@ -372,16 +624,19 @@ data Determiner
   deriving (Show)
 
 determiner =
-  (string "the" *> pure The) <|>
-  try (string "an" *> pure An) <|>
-  (string "a" *> pure A) <|>
-  (string "some" *> pure Some) <|>
-  try (string "not " *> (try (string "every") <|> string "each") *> pure NotEveryEach) <|>
-  (string "not all" *> pure NotAll) <|>
-  (string "no" *> pure No) <|>
-  ((try (string "every") <|> string "each") *> pure EveryEach) <|>
-  (string "all" *> pure All) <|>
-  (string "which" *> pure Which)
+  (string "the " *> pure The) <|>
+  try (string "an " *> pure An) <|>
+  (string "a " *> pure A) <|>
+  (string "some " *> pure Some) <|>
+  try (string "not " *>
+       (try (string "every ") <|> string "each ") *>
+       pure NotEveryEach) <|>
+  (string "not all " *> pure NotAll) <|>
+  (string "no " *> pure No) <|>
+  ((try (string "every ") <|> string "each ") *>
+   pure EveryEach) <|>
+  (string "all " *> pure All) <|>
+  (string "which " *> pure Which)
 
 data DistributiveGlobalQuantor =
   ForEachOf -- ^ \"for each of\"
@@ -405,22 +660,33 @@ data GeneralizedQuantor
   deriving (Show)
 
 generalizedQuantor =
-  try (string "at most" *> pure AtMost) <|>
-  try (string "at least" *> pure AtLeast) <|>
-  try (string "more than" *> pure MoreThan) <|>
-  try (string "less than" *> pure LessThan) <|>
-  try (string "not more than" *> pure NotMoreThan) <|>
-  try (string "not less than" *> pure NotLessThan)
+  try (string "at most " *> pure AtMost) <|>
+  try (string "at least " *> pure AtLeast) <|>
+  try (string "more than " *> pure MoreThan) <|>
+  try (string "less than " *> pure LessThan) <|>
+  try (string "not more than " *> pure NotMoreThan) <|>
+  try (string "not less than " *> pure NotLessThan)
 
 data PossessivePronoun
-  = HisHer -- ^ \"his\" / \"her\"
+  = HisHer -- ^ \"his\" / \"her\" / \"his/her\"
   | Its -- ^ \"its\"
   | Their -- ^ \"their\"
-  | HisHerOwn -- ^ \"his own\" / \"her own\"
+  | HisHerOwn -- ^ \"his own\" / \"her own\" / \"his/her own\"
   | ItsOwn -- ^ \"its own\"
   | TheirOwn -- ^ \"their own\"
   | Whose -- ^ \"whose\"
   deriving (Show)
+
+possessivePronoun =
+  try hisHer <|>
+  try its
+  where hisHer =
+          (try (string "his") <|>
+           try (string "her") <|>
+           (string "his/her")) *>
+          pure HisHer
+        its =
+          string "its" *> pure Its
 
 data Pronoun
   = It -- ^ \"it\"
@@ -449,10 +715,21 @@ data SaxonGenitiveMarker
   | ApostropheS -- ^ \"'s\"
   deriving (Show)
 
+saxonGenitiveMarker =
+  (string "'s" *> pure ApostropheS) <|>
+  (string "'" *> pure Apostrophe)
+
 data UniversalGlobalQuantor
   = ForEveryEach -- ^ \"for every\" / \"for each\"
   | ForAll -- ^ \"for all\"
   deriving (Show)
+
+universalGlobalQuantor =
+  string "for " *>
+  (string "e" *>
+   (string "very" <|> string "ach") *>
+   pure ForEveryEach) <|>
+  (string "all" *> pure ForAll)
 
 class Pretty p where
   pretty :: PrettySettings -> p -> String
