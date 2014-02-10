@@ -21,8 +21,10 @@ cabal-version:       >=1.8
 library
   hs-source-dirs:    src/
   ghc-options:       -Wall -O2
-  exposed-modules:   ACE, ACE.Types.Syntax, ACE.Parsers
-  build-depends:     base >= 4 && <5,
-                     parsec,
-                     semigroups,
-                     data-default
+  exposed-modules:   ACE, ACE.Types.Syntax, ACE.Parsers, ACE.Tokenizer
+  build-depends:     attoparsec >= 0.11.1.0,
+                     parsec >= 3.1.5,
+                     data-default >= 0.5.3,
+                     semigroups >= 0.12.2,
+                     text >= 0.11.2.3,
+                     base >= 4 && <5

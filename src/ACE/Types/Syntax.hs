@@ -139,11 +139,11 @@ data ApposCoord =
 
 data Apposition
   = AppositionVar Variable
-  | AppositionQuote QuotedString
+  | AppositionQuote Quotation
   deriving (Show)
 
-data QuotedString =
-  QuotedString String
+data Quotation =
+  Quotation String
   deriving (Show)
 
 data Variable =
