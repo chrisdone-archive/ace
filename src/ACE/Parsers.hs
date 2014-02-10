@@ -13,257 +13,268 @@ import ACE.Types.Tokens
 import Text.Parsec.Prim (Stream,ParsecT,parse,try)
 import Control.Applicative
 
--- -- | Specifications consist of a sentence coordination followed by a
--- -- period and optionally one ore more subsequent specifications.
--- specification =
---   Specification
---     <$> sentenceCoord <* string "."
---     <*> optional (try specification)
+-- | Specifications consist of a sentence coordination followed by a
+-- period and optionally one ore more subsequent specifications.
+specification =
+  Specification
+    <$> sentenceCoord <* period
+    <*> optional (try specification)
 
--- -- | Sentences can be coordinated by @and@ and @or@. @And@ refers to the
--- -- logical conjunction, while @or@ de-notes the logical disjunction. The
--- -- logical conjunction has a higher precedence than the disjunction.
--- sentenceCoord =
---   SentenceCoord
---     <$> sentenceCoord_1
---     <*> optional (try (string " or " *> sentenceCoord))
+-- | Sentences can be coordinated by @and@ and @or@. @And@ refers to the
+-- logical conjunction, while @or@ de-notes the logical disjunction. The
+-- logical conjunction has a higher precedence than the disjunction.
+sentenceCoord =
+  SentenceCoord
+    <$> sentenceCoord_1
+    <*> optional (string "or" *> sentenceCoord)
 
--- sentenceCoord_1 =
---   SentenceCoord_1
---     <$> sentenceCoord_2
---     <*> optional (try (string ", and " *> sentenceCoord_1))
+sentenceCoord_1 =
+  SentenceCoord_1
+    <$> sentenceCoord_2
+    <*> optional (comma *> string "and" *> sentenceCoord_1)
 
--- sentenceCoord_2 =
---   SentenceCoord_2
---     <$> sentenceCoord_3
---     <*> optional (try (string " or " *> sentenceCoord_2))
+sentenceCoord_2 =
+  SentenceCoord_2
+    <$> sentenceCoord_3
+    <*> optional (string "or" *> sentenceCoord_2)
 
--- sentenceCoord_3 =
---   SentenceCoord_3
---     <$> topicalizedSentence
---     <*> optional (try (string " and " *> sentenceCoord_3))
+sentenceCoord_3 =
+  SentenceCoord_3
+    <$> topicalizedSentence
+    <*> optional (string "and" *> sentenceCoord_3)
 
--- topicalizedSentence =
---   (TopicalizedSentenceExistential <$> existentialTopic <*> optional sentenceCoord) <|>
---   (TopicalizedSentenceUniversal <$> universalTopic <*> sentenceCoord) <|>
---   (TopicalizedSentenceComposite <$> compositeSentence)
+topicalizedSentence =
+  (TopicalizedSentenceExistential <$> existentialTopic <*> optional sentenceCoord) <|>
+  (TopicalizedSentenceUniversal <$> universalTopic <*> sentenceCoord) <|>
+  (TopicalizedSentenceComposite <$> compositeSentence)
 
--- universalTopic =
---   UniversalTopic <$> universalGlobalQuantor
---                  <*> n'
+universalTopic =
+  UniversalTopic <$> universalGlobalQuantor
+                 <*> n'
 
--- compositeSentence =
---   compositeSentenceCond <|>
---   compositeSentenceNeg <|>
---   compositeSentence
---   where compositeSentenceCond =
---           CompositeSentenceCond <$> conditionalSentence
---         compositeSentenceNeg =
---           CompositeSentenceNeg <$> negatedSentence
---         compositeSentence =
---           CompositeSentence <$> sentence
+compositeSentence =
+  compositeSentenceCond <|>
+  compositeSentenceNeg <|>
+  compositeSentence
+  where compositeSentenceCond =
+          CompositeSentenceCond <$> conditionalSentence
+        compositeSentenceNeg =
+          CompositeSentenceNeg <$> negatedSentence
+        compositeSentence =
+          CompositeSentence <$> sentence
 
--- conditionalSentence =
---   ConditionalSentence
---     <$> (string "if " *> sentenceCoord)
---     <*> (string "then " *> sentenceCoord)
+conditionalSentence =
+  ConditionalSentence
+    <$> (string "if" *> sentenceCoord)
+    <*> (string "then" *> sentenceCoord)
 
--- negatedSentence =
---   NegatedSentence
---     <$> (string "it is not the case that " *>
---          sentenceCoord)
+negatedSentence =
+  NegatedSentence
+    <$> (strings ["it","is","not","the","case","that"] *>
+         sentenceCoord)
 
--- sentence =
---   Sentence
---     <$> (npCoord <* string " ")
---     <*> vpCoord
+sentence =
+  Sentence
+    <$> npCoord
+    <*> vpCoord
 
--- existentialTopic =
---   ExistentialTopic <$> existentialGlobalQuantor
---                    <*> npCoord
+existentialTopic =
+  ExistentialTopic <$> existentialGlobalQuantor
+                   <*> npCoord
 
--- npCoord =
---   NPCoordDistributed
---     <$> distributiveMarker
---     <*> unmarkedNPCoord
+npCoord =
+  NPCoordDistributed
+    <$> distributiveMarker
+    <*> unmarkedNPCoord
 
--- unmarkedNPCoord =
---   UnmarkedNPCoord
---     <$> np
---     <*> unmarkedNPCoord
+unmarkedNPCoord =
+  UnmarkedNPCoord
+    <$> np
+    <*> unmarkedNPCoord
 
--- np =
---   NP <$> specifier
---      <*> n'
+np =
+  NP <$> specifier
+     <*> n'
 
--- n' =
---   N' <$> optional adjectiveCoord
---      <*> n
---      <*> optional apposCoord
---      <*> optional pp
---      <*> optional relativeClauseCoord
+n' =
+  N' <$> optional adjectiveCoord
+     <*> n
+     <*> optional apposCoord
+     <*> optional pp
+     <*> optional relativeClauseCoord
 
--- n =
---   N <$> string "<noun>"
+n =
+  N <$> string "<noun>"
 
--- pp =
---   PP <$> preposition
---      <*> npCoord
+pp =
+  PP <$> preposition
+     <*> npCoord
 
--- preposition =
---   Preposition <$> string "<preposition>"
+preposition =
+  Preposition <$> string "<preposition>"
 
--- apposCoord =
---   ApposCoord
---     <$> apposition
---     <*> optional (string "and " *> apposCoord)
+apposCoord =
+  ApposCoord
+    <$> apposition
+    <*> optional (string "and" *> apposCoord)
 
--- apposition =
---   string " " *>
---   (try (AppositionVar <$> variable) <|>
---    (AppositionQuote <$> quotedString))
+apposition =
+  (AppositionVar <$> variable) <|>
+  (AppositionQuote <$> quotation)
 
--- quotedString =
---   undefined
+-- | Some variable.
+variable =
+  Variable <$> string "<variable>"
 
--- -- | Some variable.
--- variable =
---   Variable <$> string "<variable>"
+-- | Some quoted.
+quotation =
+  Quotation <$> quoted
 
--- -- | A relative clause coordination.
--- relativeClauseCoord =
---   RelativeClauseCoord
---     <$> relativeClause
---     <*> optional ((,) <$> coord
---                       <*> relativeClauseCoord)
+-- | A relative clause coordination.
+relativeClauseCoord =
+  RelativeClauseCoord
+    <$> relativeClause
+    <*> optional ((,) <$> coord
+                      <*> relativeClauseCoord)
 
--- possessiveNPCoord =
---   PossessiveNPCoordGen <$> genitiveNPCoord
+properName =
+  ProperName <$> string "<proper-name>"
 
--- properName =
---   ProperName <$> string "<proper-name>"
+possessivePronounCoord =
+  PossessivePronounCoord
+    <$> possessivePronoun
+    <*> optional (string "and" *> possessivePronounCoord)
 
--- genitiveNPCoord =
---   try specifier <|> name
---   where specifier =
---           GenitiveNPCoord
---             <$> genitiveSpecifier
---             <*> genitiveN'
---             <*> genitiveTail
---         name =
---           GenitiveNPCoordName
---             <$> properName
---             <*> genitiveTail
+genitiveTail =
+  (GenitiveTailSaxonTail <$> saxonGenitiveTail) <|>
+  (GenitiveTailCoordtail <$> genitiveCoordTail)
 
--- possessivePronounCoord =
---   PossessivePronounCoord
---     <$> possessivePronoun
---     <*> optional (try (string " and " *> possessivePronounCoord))
+genitiveCoordTail =
+  GenitiveCoordTail <$> (string "and" *> genitiveNPCoord)
 
--- genitiveTail =
---   try (GenitiveTailSaxonTail <$> saxonGenitiveTail) <|>
---   (GenitiveTailCoordtail <$> genitiveCoordTail)
+saxonGenitiveTail =
+  SaxonGenitiveTail
+    <$> saxonGenitiveMarker
+    <*> optional ((,) <$> genitiveN'
+                      <*> saxonGenitiveTail)
 
--- genitiveCoordTail =
---   GenitiveCoordTail <$> (string " and " *> genitiveNPCoord)
+relativeClause =
+  RelativeClause <$> vpCoord
 
--- saxonGenitiveTail =
---   SaxonGenitiveTail
---     <$> saxonGenitiveMarker
---     <*> optional (try ((,) <$> genitiveN'
---                            <*> saxonGenitiveTail))
+-- | Verb phrase coordination.
+vpCoord =
+  (VPCoord'
+     <$> vp
+     <*> coord
+     <*> vpCoord) <|>
+  VPCoordVP <$> vp
 
--- relativeClause =
---   RelativeClause <$> vpCoord
+genitiveSpecifier =
+  (GenitiveSpecifierD <$> determiner) <|>
+  (GenitiveSpecifierPPC <$> possessivePronounCoord) <|>
+  (GenitiveSpecifierN <$> number)
 
--- -- | Verb phrase coordination.
--- vpCoord =
---   (VPCoord'
---      <$> vp
---      <*> coord
---      <*> vpCoord) <|>
---   VPCoordVP <$> vp
+genitiveN' =
+  GenitiveN'
+    <$> optional adjectiveCoord
+    <*> n
+    <*> optional apposCoord
 
--- genitiveSpecifier =
---   try (GenitiveSpecifierD <$> determiner) <|>
---   try (GenitiveSpecifierPPC <$> possessivePronounCoord) <|>
---   GenitiveSpecifierN <$> number
+-- | Verb phrase.
+vp =
+  VP <$> v'
 
--- genitiveN' =
---   GenitiveN'
---     <$> optional (try (adjectiveCoord <* string " "))
---     <*> n
---     <*> optional (try apposCoord)
+-- | Verb.
+v' =
+  V' <$> optional adverbCoord
+     <*> complV
+     <*> many vModifier
 
--- -- | Verb phrase.
--- vp =
---   VP <$> v'
+adverbCoord =
+  AdverbCoord <$> adverb
+              <*> optional adverbCoord
 
--- -- | Verb.
--- v' =
---   V' <$> optional adverbCoord
---      <*> complV
---      <*> many vModifier
+complV =
+  ComplV <$> intransitiveV
 
--- adverbCoord =
---   AdverbCoord <$> adverb
---               <*> optional adverbCoord
+-- | Intransitive verb.
+intransitiveV =
+  IntransitiveV <$> string "<intransitive-verb>"
 
--- complV =
---   ComplV <$> intransitiveV
+vModifier =
+  vModifierVC <|> vModifierPP <|> vModifierAVPP
+  where vModifierVC =
+          VModifierVC <$> adverbCoord
+        vModifierPP =
+          VModifierPP <$> pp
+        vModifierAVPP =
+          VModifierAVPP <$> adverbialPP
 
--- -- | Intransitive verb.
--- intransitiveV =
---   IntransitiveV <$> string "<intransitive-verb>"
+adverbialPP =
+  AdverbialPP
+    <$> preposition
+    <*> adverbCoord
 
--- -- | Intransitive adjective.
--- intransitiveAdjective =
---   IntransitiveAdjective <$> string "<intransitive-adjective>"
+-- | An adverb.
+adverb =
+  Adverb <$> string "<adverb>"
 
--- vModifier =
---   vModifierVC <|> vModifierPP <|> vModifierAVPP
---   where vModifierVC =
---           VModifierVC <$> adverbCoord
---         vModifierPP =
---           VModifierPP <$> pp
---         vModifierAVPP =
---           VModifierAVPP <$> adverbialPP
+specifier =
+  specifierDeterminer <|>
+  specifierPossessive <|>
+  specifierNumber
+  where specifierDeterminer =
+          SpecifyDeterminer <$> determiner
+        specifierPossessive =
+          SpecifyPossessive <$> possessiveNPCoord
+        specifierNumber =
+          SpecifyNumberP <$> numberP
 
--- adverbialPP =
---   AdverbialPP
---     <$> preposition
---     <*> adverbCoord
+possessiveNPCoord =
+  PossessiveNPCoordGen <$> genitiveNPCoord
 
--- -- | An adverb.
--- adverb =
---   Adverb <$> string "<adverb>"
+-- | Intransitive adjective.
+intransitiveAdjective =
+  IntransitiveAdjective <$> string "<intransitive-adjective>"
 
--- specifier =
---   try specifierDeterminer <|>
---   try specifierPossessive <|>
---   specifierNumber
---   where specifierDeterminer =
---           SpecifyDeterminer <$> determiner
---         specifierPossessive =
---           SpecifyPossessive <$> possessiveNPCoord
---         specifierNumber =
---           SpecifyNumberP <$> numberP
+-- | Adjective coordination.
+adjectiveCoord =
+  AdjectiveCoord
+    <$> intransitiveAdjective
+    <*> optional (string "and" *> adjectiveCoord)
 
--- -- | Adjective coordination.
--- adjectiveCoord =
---   AdjectiveCoord
---     <$> intransitiveAdjective
---     <*> optional (try (string " and " *> adjectiveCoord))
+genitiveNPCoord =
+  specifier <|> name
+  where specifier =
+          GenitiveNPCoord
+            <$> genitiveSpecifier
+            <*> genitiveN'
+            <*> genitiveTail
+        name =
+          GenitiveNPCoordName
+            <$> properName
+            <*> genitiveTail
 
--- -- | A number phrase.
--- numberP =
---   NumberP
---     <$> optional generalizedQuantor
---     <*> (number <* string " ")
+-- | A determiner: the, an, not every, etc.
+determiner =
+  (string "the" *> pure The) <|>
+  (string "an" *> pure An) <|>
+  (string "a" *> pure A) <|>
+  (string "some" *> pure Some) <|>
+  (strings ["not","every"] *> pure NotEveryEach) <|>
+  (strings ["not","each"] *> pure NotEveryEach) <|>
+  (strings ["not","all"] *> pure NotAll) <|>
+  (string "no" *> pure No) <|>
+  (string "every" *> pure EveryEach) <|>
+  (string "each" *> pure EveryEach) <|>
+  (string "all" *> pure All) <|>
+  (string "which" *> pure Which)
 
--- -- | Some positive integer number.
--- number =
---   (Number . read) <$> many1 digit
+-- | A number phrase.
+numberP =
+  NumberP
+    <$> optional generalizedQuantor
+    <*> number
 
 -- | There is/are.
 existentialGlobalQuantor =
@@ -288,33 +299,15 @@ copula =
   (string "is" *> pure Is) <|>
   (string "are" *> pure Are)
 
--- determiner =
---   (string "the " *> pure The) <|>
---   try (string "an " *> pure An) <|>
---   (string "a " *> pure A) <|>
---   (string "some " *> pure Some) <|>
---   try (string "not " *>
---        (try (string "every ") <|> string "each ") *>
---        pure NotEveryEach) <|>
---   (string "not all " *> pure NotAll) <|>
---   (string "no " *> pure No) <|>
---   ((try (string "every ") <|> string "each ") *>
---    pure EveryEach) <|>
---   (string "all " *> pure All) <|>
---   (string "which " *> pure Which)
-
 -- | A distributive global quantor: for each of
-distributiveGlobalQuantor :: Stream s m Token => ParsecT s u m DistributiveGlobalQuantor
 distributiveGlobalQuantor =
   strings ["for","each","of"] *> pure ForEachOf
 
 -- | A distributive marker: each of
-distributiveMarker :: Stream s m Token => ParsecT s u m DistributiveMarker
 distributiveMarker =
   strings ["each","of"] *> pure EachOf
 
 -- | A generalized quantor: at most, at least, etc.
-generalizedQuantor :: Stream s m Token => ParsecT s u m GeneralizedQuantor
 generalizedQuantor =
   (strings ["at","most"] *> pure AtMost) <|>
   (strings ["at","least"] *> pure AtLeast) <|>
@@ -324,23 +317,19 @@ generalizedQuantor =
   (strings ["not","less","than"] *> pure NotLessThan)
 
 -- | A possessive pronoun: his, her, his/her.
-possessivePronoun :: Stream s m Token => ParsecT s u m PossessivePronoun
 possessivePronoun =
-  try hisHer <|>
-  try its
+  hisHer <|> its
   where hisHer =
           (string "his" <|> string "her" <|> string "his/her") *>
           pure HisHer
         its = string "its" *> pure Its
 
 -- | Saxon genitive: The Parsons', the forest's.
-saxonGenitiveMarker :: Stream s m Token => ParsecT s u m SaxonGenitiveMarker
 saxonGenitiveMarker =
   (genitive True *> pure ApostropheS) <|>
   (genitive False *> pure Apostrophe)
 
 -- | A universal global quantor: for every/for each, for all.
-universalGlobalQuantor :: Stream s m Token => ParsecT s u m UniversalGlobalQuantor
 universalGlobalQuantor =
   string "for" *> (everyEach <|> forAll)
   where everyEach = (string "every" <|> string "each") *> pure ForEveryEach
