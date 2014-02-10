@@ -25,13 +25,20 @@ main = hspec spec
 spec :: Spec
 spec = do
   describe "tokenizer" tokenizer
-  where tokenizer =
-          do it "empty string" (tokenize "" == Right [])
-             it "word" (tokenize "word" == Right [Word (1,0) "word"])
-             it "period" (tokenize "." == Right [Period (1,0)])
-             it "comma" (tokenize "," == Right [Comma (1,0)])
-             it "question mark" (tokenize "?" == Right [QuestionMark (1,0)])
-             it "words" (tokenize "foo bar" == Right [Word (1,0) "foo",Word (1,4) "bar"])
-             it "genitive '" (tokenize "foo'" == Right [Word (1,0) "foo",Genitive (1,3) False])
-             it "genitive 's" (tokenize "foo's" == Right [Word (1,0) "foo",Genitive (1,3) True])
-             it "newline" (tokenize "foo\nbar" == Right [Word (1,0) "foo",Word (2,0) "bar"])
+  describe "parser" parser
+  where
+    tokenizer =
+      do it "empty string" (tokenize "" == Right [])
+         it "word" (tokenize "word" == Right [Word (1,0) "word"])
+         it "period" (tokenize "." == Right [Period (1,0)])
+         it "comma" (tokenize "," == Right [Comma (1,0)])
+         it "question mark" (tokenize "?" == Right [QuestionMark (1,0)])
+         it "quotation" (tokenize "\"foo\"" == Right [QuotedString (1,0) "foo"])
+         it "empty-quotation" (isLeft (tokenize "\"\""))
+         it "words" (tokenize "foo bar" == Right [Word (1,0) "foo",Word (1,4) "bar"])
+         it "genitive '" (tokenize "foo'" == Right [Word (1,0) "foo",Genitive (1,3) False])
+         it "genitive 's" (tokenize "foo's" == Right [Word (1,0) "foo",Genitive (1,3) True])
+         it "newline" (tokenize "foo\nbar" == Right [Word (1,0) "foo",Word (2,0) "bar"])
+    parser =
+      do it "" True
+    isLeft = either (const True) (const False)
