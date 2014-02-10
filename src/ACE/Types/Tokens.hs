@@ -11,9 +11,9 @@ import GHC.Generics (Generic)
 
 -- | A token
 data Token
-  = Word !Text
-  | QuotedString !Text
-  | Period
-  | Comma
-  | QuestionMark
+  = Word (Int,Int) !Text
+  | QuotedString (Int,Int) !Text
+  | Period (Int,Int)
+  | Comma (Int,Int)
+  | QuestionMark (Int,Int)
   deriving (Show,Eq,Data,Typeable,Generic)

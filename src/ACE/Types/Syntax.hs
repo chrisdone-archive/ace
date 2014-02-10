@@ -355,7 +355,7 @@ data Pronoun
   | SomeoneSomebody -- ^ \"someone\" / \"somebody\"
   | Something -- ^ \"something\"
   | NoOneNobody -- ^ \"no one\" / \"nobody\"
-  | Nothing -- ^ \"nothing\"
+  | NoThing -- ^ \"nothing\"
   | EveryoneEverybody -- ^ \"everyone\" / \"everybody\"
   | Everything -- ^ \"everything\"
   | NotEveryoneEverybody -- ^ \"not everyone\" / \"not everybody\"
