@@ -33,6 +33,7 @@ spec = do
          it "word" (tokenize "word" == Right [Word (1,0) "word"])
          it "period" (tokenize "." == Right [Period (1,0)])
          it "comma" (tokenize "," == Right [Comma (1,0)])
+         it "number" (tokenize "55" == Right [Number (1,0) 55])
          it "question mark" (tokenize "?" == Right [QuestionMark (1,0)])
          it "quotation" (tokenize "\"foo\"" == Right [QuotedString (1,0) "foo"])
          it "empty-quotation" (isLeft (tokenize "\"\""))

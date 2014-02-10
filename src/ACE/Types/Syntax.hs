@@ -205,7 +205,7 @@ data VPCoord
 data GenitiveSpecifier
   = GenitiveSpecifierD !Determiner
   | GenitiveSpecifierPPC !PossessivePronounCoord
-  | GenitiveSpecifierN !Number
+  | GenitiveSpecifierN !Integer
   deriving (Eq)
 
 data GenitiveN' =
@@ -264,11 +264,7 @@ data AdjectiveCoord =
   deriving (Eq)
 
 data NumberP =
-  NumberP !(Maybe GeneralizedQuantor) !Number
-  deriving (Eq)
-
-data Number =
-  Number !Integer
+  NumberP !(Maybe GeneralizedQuantor) !Integer
   deriving (Eq)
 
 data ExistentialGlobalQuantor =

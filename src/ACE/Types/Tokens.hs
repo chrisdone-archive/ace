@@ -20,6 +20,7 @@ data Token
   | Comma !(Int,Int)
   | QuestionMark !(Int,Int)
   | Genitive !(Int,Int) !Bool
+  | Number !(Int,Int) !Integer
   deriving (Show,Eq,Data,Typeable,Generic)
 
 -- | Get the position of the token.
@@ -31,4 +32,5 @@ tokenPos t =
     Period pos         -> pos
     Comma pos          -> pos
     QuestionMark pos   -> pos
-    Genitive pos _   -> pos
+    Genitive pos _     -> pos
+    Number pos _       -> pos

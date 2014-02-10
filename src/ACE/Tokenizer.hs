@@ -8,10 +8,11 @@ import           ACE.Types.Tokens
 import           Control.Applicative
 import           Control.Arrow
 import           Control.Monad
-import           Data.Attoparsec.Text
+import           Data.Attoparsec.Text hiding (number)
 import           Data.Char
 import           Data.Text (Text)
 import qualified Data.Text as T
+import qualified Data.Text.Read as T
 
 -- | Tokenize some complete ACE text.
 tokenize :: Text -> Either String [Token]
@@ -28,11 +29,18 @@ tokenizer =
 -- | Parse a token.
 token :: (Int,Int) -> Parser (Token,(Int,Int))
 token pos =
+  number pos <|>
   quotedString pos <|>
   period pos <|>
   comma pos <|>
   questionMark pos <|>
   word pos
+
+-- | Parse a number.
+number :: (Int, Int) -> Parser (Token, (Int, Int))
+number pos =
+  fmap (\n -> (Number pos (either (const 0) fst (T.decimal n)),second (+ T.length n) pos))
+       (takeWhile1 isDigit)
 
 -- | Parse a quoted string, @\"foobar\"@.
 quotedString :: (Int,Int) -> Parser (Token,(Int,Int))
