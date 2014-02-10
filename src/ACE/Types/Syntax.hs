@@ -365,6 +365,7 @@ data Pronoun
   | WhichWho -- ^ \"which\" / \"who\"
   deriving (Show)
 
+-- | The Saxon genitive used for possession.
 data SaxonGenitiveMarker
   = Apostrophe -- ^ \"'\"
   | ApostropheS -- ^ \"'s\"
