@@ -21,7 +21,9 @@ tokenize =
 -- | The tokenizer.
 tokenizer :: Parser ([Token],(Int,Int))
 tokenizer =
-  manyWithPos (spaces >=> token) (1,0)
+  manyWithPos (spaces >=> token)
+              genitive
+              (1,0)
 
 -- | Parse a token.
 token :: (Int,Int) -> Parser (Token,(Int,Int))
@@ -68,21 +70,41 @@ word pos =
       c /= '"' &&
       c /= '.' &&
       c /= '?' &&
-      c /= ','
+      c /= ',' &&
+      c /= '\''
 
--- | Like 'many', but retains the current source position.
+-- | Parse the Saxon genitive ' or 's. This is ran after parsing every
+-- token, but is expected to fail most of the time.
+genitive :: (Int, Int) -> Parser (Maybe (Token, (Int, Int)))
+genitive pos =
+  optional go
+  where
+    go =
+      do char '\''
+         ms <- peekChar
+         case ms of
+           Just 's' -> anyChar *> pure (Genitive pos True,second (+1) pos)
+           _ -> pure (Genitive pos False,second (+1) pos)
+
+-- | Like 'many', but retains the current source position and supports
+-- postfix-parsing of the genitive apostrophe.
 manyWithPos :: (Monad m, Alternative m)
-            => ((Int,Int) -> m (a, (Int,Int)))
-            -> (Int,Int)
-            -> m ([a], (Int,Int))
-manyWithPos p pos =
+            => ((t, t1) -> m (a, (t, t1))) -> ((t, t1) -> m (Maybe (a, (t, t1))))
+            -> (t, t1) -> m ([a], (t, t1))
+manyWithPos p p' pos =
   do r <- fmap (first Just) (p pos) <|> pure (Nothing,pos)
      case r of
        (Nothing,_) ->
          return ([],pos)
        (Just x,newpos@(!_,!_)) ->
-         do (xs,finalpos) <- manyWithPos p newpos
-            return (x:xs,finalpos)
+         do r <- p' newpos
+            case r of
+              Nothing ->
+                do (xs,finalpos) <- manyWithPos p p' newpos
+                   return (x:xs,finalpos)
+              Just (y,newpos') ->
+                do (xs,finalpos) <- manyWithPos p p' newpos'
+                   return (x:y:xs,finalpos)
 
 -- | Skip spaces (space, newline, tab (=4 spaces)) and keep
 -- positioning information up to date.
