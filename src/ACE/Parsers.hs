@@ -7,11 +7,9 @@
 module ACE.Parsers where
 
 import ACE.Combinators
-import ACE.Tokenizer (tokenize)
 import ACE.Types.Syntax
 import ACE.Types.Tokens
 
-import Data.Bifunctor
 import Text.Parsec.Prim (Stream,ParsecT,parse,try)
 import Control.Applicative
 

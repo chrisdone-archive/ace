@@ -6,15 +6,17 @@
 module Main where
 
 import ACE.Combinators
+import ACE.Parsers
 import ACE.Tokenizer (tokenize)
 import ACE.Types.Syntax
 import ACE.Types.Tokens
+import Control.Monad
 
 import Control.Applicative
 import Data.Bifunctor
 import Test.HUnit
 import Test.Hspec
-import Text.Parsec.Prim (Stream,ParsecT,parse,try)
+import Text.Parsec (Stream,ParsecT,parse,try)
 
 -- | Test suite entry point, returns exit failure if any test fails.
 main :: IO ()
@@ -39,5 +41,8 @@ spec = do
          it "genitive 's" (tokenize "foo's" == Right [Word (1,0) "foo",Genitive (1,3) True])
          it "newline" (tokenize "foo\nbar" == Right [Word (1,0) "foo",Word (2,0) "bar"])
     parser =
-      do it "" True
+      do it "Universal global quantor"
+            (parsed universalGlobalQuantor "for every" == Right ForEveryEach)
     isLeft = either (const True) (const False)
+
+parsed p = tokenize >=> bimap show id . parse p ""

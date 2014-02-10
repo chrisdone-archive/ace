@@ -1,3 +1,6 @@
+{-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE BangPatterns #-}
 
 -- | Types for the syntax tree.
@@ -14,7 +17,7 @@ import Prelude hiding (String)
 -- period and optionally one ore more subsequent specifications.
 data Specification =
   Specification !SentenceCoord !(Maybe Specification)
-  deriving (Show)
+  deriving (Eq)
 
 -- | Sentences can be coordinated by @and@ and @or@. @And@ refers to the
 -- logical conjunction, while @or@ de-notes the logical disjunction. The
@@ -45,25 +48,25 @@ data Specification =
 --
 data SentenceCoord =
   SentenceCoord !SentenceCoord_1 !(Maybe SentenceCoord)
-  deriving (Show)
+  deriving (Eq)
 
 data SentenceCoord_1 =
   SentenceCoord_1 !SentenceCoord_2 !(Maybe SentenceCoord_1)
-  deriving (Show)
+  deriving (Eq)
 
 data SentenceCoord_2 =
   SentenceCoord_2 !SentenceCoord_3 !(Maybe SentenceCoord_2)
-  deriving (Show)
+  deriving (Eq)
 
 data SentenceCoord_3 =
   SentenceCoord_3 !TopicalizedSentence !(Maybe SentenceCoord_3)
-  deriving (Show)
+  deriving (Eq)
 
 -- | Singular/plural.
 data Plurality
   = Singular
   | Plural
-  deriving (Show)
+  deriving (Eq)
 
 -- | A topicalized sentence can start with an existential topic or a
 -- universal topic. It needs, however, not be topicalized at all but
@@ -72,43 +75,43 @@ data TopicalizedSentence
   = TopicalizedSentenceExistential !ExistentialTopic !(Maybe SentenceCoord) -- ^ Example: \"There is a card such that the code of the card is valid.\"
   | TopicalizedSentenceUniversal !UniversalTopic !SentenceCoord -- ^ Example: \"For every code there is a card such that the code belongs to it.\"
   | TopicalizedSentenceComposite !CompositeSentence -- ^ Example: \"Homer is a man.\"
-  deriving (Show)
+  deriving (Eq)
 
 data UniversalTopic =
   UniversalTopic !UniversalGlobalQuantor !N'
-  deriving (Show)
+  deriving (Eq)
 
 data CompositeSentence
   = CompositeSentenceCond !ConditionalSentence
   | CompositeSentenceNeg !NegatedSentence
   | CompositeSentence !Sentence
-  deriving (Show)
+  deriving (Eq)
 
 data ConditionalSentence =
   ConditionalSentence !SentenceCoord
                       !SentenceCoord
-  deriving (Show)
+  deriving (Eq)
 
 data NegatedSentence =
   NegatedSentence !SentenceCoord
-  deriving (Show)
+  deriving (Eq)
 
 data Sentence =
   Sentence !NPCoord !VPCoord
-  deriving (Show)
+  deriving (Eq)
 
 data ExistentialTopic =
   ExistentialTopic !ExistentialGlobalQuantor
                    !NPCoord
-  deriving (Show)
+  deriving (Eq)
 
 data NPCoord =
   NPCoordDistributed !DistributiveMarker !UnmarkedNPCoord
-  deriving (Show)
+  deriving (Eq)
 
 data UnmarkedNPCoord =
   UnmarkedNPCoord !NP !UnmarkedNPCoord
-  deriving (Show)
+  deriving (Eq)
 
 -- | Modified noun.
 data N' =
@@ -117,164 +120,164 @@ data N' =
      !(Maybe ApposCoord)
      !(Maybe PP)
      !(Maybe RelativeClauseCoord)
-  deriving (Show)
+  deriving (Eq)
 
 -- | Noun-phrase.
 data NP =
   NP !Specifier !N'
-  deriving (Show)
+  deriving (Eq)
 
 -- | A noun.
 data N =
   N !Text
-  deriving (Show)
+  deriving (Eq)
 
 data PP =
   PP !Preposition !NPCoord
-  deriving (Show)
+  deriving (Eq)
 
 data Preposition =
   Preposition !Text
-  deriving (Show)
+  deriving (Eq)
 
 data ApposCoord =
   ApposCoord !Apposition !(Maybe ApposCoord)
-  deriving (Show)
+  deriving (Eq)
 
 data Apposition
   = AppositionVar !Variable
   | AppositionQuote !Quotation
-  deriving (Show)
+  deriving (Eq)
 
 data Quotation =
   Quotation !Text
-  deriving (Show)
+  deriving (Eq)
 
 data Variable =
   Variable !Text
-  deriving (Show)
+  deriving (Eq)
 
 data RelativeClauseCoord =
   RelativeClauseCoord !RelativeClause !(Maybe (Coord,RelativeClauseCoord))
-  deriving (Show)
+  deriving (Eq)
 
 data PossessiveNPCoord
   = PossessiveNPCoordGen !GenitiveNPCoord
   | PossessiveNPCoordPronoun !PossessivePronounCoord
-  deriving (Show)
+  deriving (Eq)
 
 data GenitiveNPCoord
   = GenitiveNPCoord !GenitiveSpecifier !GenitiveN' !GenitiveTail
   | GenitiveNPCoordName !ProperName !GenitiveTail
-  deriving (Show)
+  deriving (Eq)
 
 data ProperName =
   ProperName !Text
-  deriving (Show)
+  deriving (Eq)
 
 data PossessivePronounCoord =
   PossessivePronounCoord !PossessivePronoun
                          !(Maybe PossessivePronounCoord)
-  deriving (Show)
+  deriving (Eq)
 
 data GenitiveTail
   = GenitiveTailSaxonTail !SaxonGenitiveTail
   | GenitiveTailCoordtail !GenitiveCoordTail
-  deriving (Show)
+  deriving (Eq)
 
 data GenitiveCoordTail =
   GenitiveCoordTail !GenitiveNPCoord
-  deriving (Show)
+  deriving (Eq)
 
 data SaxonGenitiveTail =
   SaxonGenitiveTail !SaxonGenitiveMarker !(Maybe (GenitiveN',SaxonGenitiveTail))
-  deriving (Show)
+  deriving (Eq)
 
 data RelativeClause =
   RelativeClause !VPCoord
-  deriving (Show)
+  deriving (Eq)
 
 data VPCoord
   = VPCoord' !VP !Coord !VPCoord
   | VPCoordVP !VP
-  deriving (Show)
+  deriving (Eq)
 
 data GenitiveSpecifier
   = GenitiveSpecifierD !Determiner
   | GenitiveSpecifierPPC !PossessivePronounCoord
   | GenitiveSpecifierN !Number
-  deriving (Show)
+  deriving (Eq)
 
 data GenitiveN' =
   GenitiveN' !(Maybe AdjectiveCoord)
              !N
              !(Maybe ApposCoord)
-  deriving (Show)
+  deriving (Eq)
 
 data VP =
   VP !V'
-  deriving (Show)
+  deriving (Eq)
 
 data V' =
   V' !(Maybe AdverbCoord) !ComplV ![VModifier] -- What is *?
-  deriving (Show)
+  deriving (Eq)
 
 data AdverbCoord =
   AdverbCoord !Adverb !(Maybe AdverbCoord)
-  deriving (Show)
+  deriving (Eq)
 
 data ComplV =
   ComplV !IntransitiveV
-  deriving (Show)
+  deriving (Eq)
 
 data IntransitiveV =
   IntransitiveV !Text
-  deriving (Show)
+  deriving (Eq)
 
 data IntransitiveAdjective =
   IntransitiveAdjective !Text
-  deriving (Show)
+  deriving (Eq)
 
 data VModifier
   = VModifierVC !AdverbCoord
   | VModifierPP !PP
   | VModifierAVPP !AdverbialPP
-  deriving (Show)
+  deriving (Eq)
 
 data AdverbialPP =
   AdverbialPP !Preposition !AdverbCoord
-  deriving (Show)
+  deriving (Eq)
 
 data Adverb =
   Adverb !Text
-  deriving (Show)
+  deriving (Eq)
 
 data Specifier
   = SpecifyDeterminer !Determiner
   | SpecifyPossessive !PossessiveNPCoord
   | SpecifyNumberP !NumberP
-  deriving (Show)
+  deriving (Eq)
 
 data AdjectiveCoord =
   AdjectiveCoord !IntransitiveAdjective
                  !(Maybe AdjectiveCoord)
-  deriving (Show)
+  deriving (Eq)
 
 data NumberP =
   NumberP !(Maybe GeneralizedQuantor) !Number
-  deriving (Show)
+  deriving (Eq)
 
 data Number =
   Number !Integer
-  deriving (Show)
+  deriving (Eq)
 
 data ExistentialGlobalQuantor =
   ExistentialGlobalQuantor !Copula
-  deriving (Show)
+  deriving (Eq)
 
 data ExistentialGlobalQuestionQuantor =
   ExistentialGlobalQuestionQuantor !Copula
-  deriving (Show)
+  deriving (Eq)
 
 instance Pretty ExistentialGlobalQuestionQuantor where
   pretty s x =
@@ -283,7 +286,7 @@ instance Pretty ExistentialGlobalQuestionQuantor where
 data Aux
   = Do -- ^ \"do\"
   | Does -- ^ \"does\"
-  deriving (Show)
+  deriving (Eq)
 
 instance Pretty Aux where
   pretty s Do = "do"
@@ -292,7 +295,7 @@ instance Pretty Aux where
 data Coord
   = And -- ^ \"and\"
   | Or -- ^ \"or\"
-  deriving (Show)
+  deriving (Eq)
 
 instance Pretty Coord where
   pretty s And = "and"
@@ -301,7 +304,7 @@ instance Pretty Coord where
 data Copula
   = Is -- ^ \"is\"
   | Are -- ^ \"are\"
-  deriving (Show)
+  deriving (Eq)
 
 instance Pretty Copula where
   pretty s Is = "is"
@@ -318,15 +321,15 @@ data Determiner
   | NotEveryEach -- ^ \"not every\" / \"not each\"
   | NotAll -- ^ \"not all\"
   | Which -- ^ \"which\"
-  deriving (Show)
+  deriving (Eq)
 
 data DistributiveGlobalQuantor =
   ForEachOf -- ^ \"for each of\"
-  deriving (Show)
+  deriving (Eq)
 
 data DistributiveMarker =
   EachOf -- ^ \"each of\"
-  deriving (Show)
+  deriving (Eq)
 
 data GeneralizedQuantor
   = AtMost -- ^ \"at most\"
@@ -335,7 +338,7 @@ data GeneralizedQuantor
   | LessThan -- ^ \"less than\"
   | NotMoreThan -- ^ \"not more than\"
   | NotLessThan -- ^ \"not less than\"
-  deriving (Show)
+  deriving (Eq)
 
 data PossessivePronoun
   = HisHer -- ^ \"his\" / \"her\" / \"his/her\"
@@ -345,7 +348,7 @@ data PossessivePronoun
   | ItsOwn -- ^ \"its own\"
   | TheirOwn -- ^ \"their own\"
   | Whose -- ^ \"whose\"
-  deriving (Show)
+  deriving (Eq)
 
 data Pronoun
   = It -- ^ \"it\"
@@ -367,15 +370,15 @@ data Pronoun
   | WhatWho -- ^ \"what\" / \"who\"
   | Whom -- ^ \"whom\"
   | WhichWho -- ^ \"which\" / \"who\"
-  deriving (Show)
+  deriving (Eq)
 
 -- | The Saxon genitive used for possession.
 data SaxonGenitiveMarker
   = Apostrophe -- ^ \"'\"
   | ApostropheS -- ^ \"'s\"
-  deriving (Show)
+  deriving (Eq)
 
 data UniversalGlobalQuantor
   = ForEveryEach -- ^ \"for every\" / \"for each\"
   | ForAll -- ^ \"for all\"
-  deriving (Show)
+  deriving (Eq)
