@@ -6,6 +6,7 @@ import ACE.Types.Tokens
 
 import Control.Applicative
 import Data.Attoparsec.Text
+import Data.Char
 import Data.Text
 
 -- | Tokenize some ACE text.
@@ -53,8 +54,8 @@ word =
   Word <$> (skipSpace *> takeWhile1 wordChar <* skipSpace)
   where
     wordChar c =
-      c /= ' ' &&
+      not (isSpace c) &&
       c /= '"' &&
       c /= '.' &&
-      c /='?' &&
+      c /= '?' &&
       c /= ','
