@@ -1,3 +1,5 @@
+{-# LANGUAGE BangPatterns #-}
+
 -- | Types for the syntax tree.
 
 module ACE.Types.Syntax where
@@ -5,11 +7,13 @@ module ACE.Types.Syntax where
 import ACE.Pretty
 
 import Data.Semigroup
+import Data.Text (Text)
+import Prelude hiding (String)
 
 -- | Specifications consist of a sentence coordination followed by a
 -- period and optionally one ore more subsequent specifications.
 data Specification =
-  Specification SentenceCoord (Maybe Specification)
+  Specification !SentenceCoord !(Maybe Specification)
   deriving (Show)
 
 -- | Sentences can be coordinated by @and@ and @or@. @And@ refers to the
@@ -40,19 +44,19 @@ data Specification =
 -- coordination of the same level.
 --
 data SentenceCoord =
-  SentenceCoord SentenceCoord_1 (Maybe SentenceCoord)
+  SentenceCoord !SentenceCoord_1 !(Maybe SentenceCoord)
   deriving (Show)
 
 data SentenceCoord_1 =
-  SentenceCoord_1 SentenceCoord_2 (Maybe SentenceCoord_1)
+  SentenceCoord_1 !SentenceCoord_2 !(Maybe SentenceCoord_1)
   deriving (Show)
 
 data SentenceCoord_2 =
-  SentenceCoord_2 SentenceCoord_3 (Maybe SentenceCoord_2)
+  SentenceCoord_2 !SentenceCoord_3 !(Maybe SentenceCoord_2)
   deriving (Show)
 
 data SentenceCoord_3 =
-  SentenceCoord_3 TopicalizedSentence (Maybe SentenceCoord_3)
+  SentenceCoord_3 !TopicalizedSentence !(Maybe SentenceCoord_3)
   deriving (Show)
 
 -- | Singular/plural.
@@ -65,211 +69,211 @@ data Plurality
 -- universal topic. It needs, however, not be topicalized at all but
 -- can just be an ordinary composite sentence.
 data TopicalizedSentence
-  = TopicalizedSentenceExistential ExistentialTopic (Maybe SentenceCoord) -- ^ Example: \"There is a card such that the code of the card is valid.\"
-  | TopicalizedSentenceUniversal UniversalTopic SentenceCoord -- ^ Example: \"For every code there is a card such that the code belongs to it.\"
-  | TopicalizedSentenceComposite CompositeSentence -- ^ Example: \"Homer is a man.\"
+  = TopicalizedSentenceExistential !ExistentialTopic !(Maybe SentenceCoord) -- ^ Example: \"There is a card such that the code of the card is valid.\"
+  | TopicalizedSentenceUniversal !UniversalTopic !SentenceCoord -- ^ Example: \"For every code there is a card such that the code belongs to it.\"
+  | TopicalizedSentenceComposite !CompositeSentence -- ^ Example: \"Homer is a man.\"
   deriving (Show)
 
 data UniversalTopic =
-  UniversalTopic UniversalGlobalQuantor N'
+  UniversalTopic !UniversalGlobalQuantor !N'
   deriving (Show)
 
 data CompositeSentence
-  = CompositeSentenceCond ConditionalSentence
-  | CompositeSentenceNeg NegatedSentence
-  | CompositeSentence Sentence
+  = CompositeSentenceCond !ConditionalSentence
+  | CompositeSentenceNeg !NegatedSentence
+  | CompositeSentence !Sentence
   deriving (Show)
 
 data ConditionalSentence =
-  ConditionalSentence SentenceCoord
-                      SentenceCoord
+  ConditionalSentence !SentenceCoord
+                      !SentenceCoord
   deriving (Show)
 
 data NegatedSentence =
-  NegatedSentence SentenceCoord
+  NegatedSentence !SentenceCoord
   deriving (Show)
 
 data Sentence =
-  Sentence NPCoord VPCoord
+  Sentence !NPCoord !VPCoord
   deriving (Show)
 
 data ExistentialTopic =
-  ExistentialTopic ExistentialGlobalQuantor
-                   NPCoord
+  ExistentialTopic !ExistentialGlobalQuantor
+                   !NPCoord
   deriving (Show)
 
 data NPCoord =
-  NPCoordDistributed DistributiveMarker UnmarkedNPCoord
+  NPCoordDistributed !DistributiveMarker !UnmarkedNPCoord
   deriving (Show)
 
 data UnmarkedNPCoord =
-  UnmarkedNPCoord NP UnmarkedNPCoord
+  UnmarkedNPCoord !NP !UnmarkedNPCoord
   deriving (Show)
 
 -- | Modified noun.
 data N' =
-  N' (Maybe AdjectiveCoord)
-     N
-     (Maybe ApposCoord)
-     (Maybe PP)
-     (Maybe RelativeClauseCoord)
+  N' !(Maybe AdjectiveCoord)
+     !N
+     !(Maybe ApposCoord)
+     !(Maybe PP)
+     !(Maybe RelativeClauseCoord)
   deriving (Show)
 
 -- | Noun-phrase.
 data NP =
-  NP Specifier N'
+  NP !Specifier !N'
   deriving (Show)
 
 -- | A noun.
 data N =
-  N String
+  N !Text
   deriving (Show)
 
 data PP =
-  PP Preposition NPCoord
+  PP !Preposition !NPCoord
   deriving (Show)
 
 data Preposition =
-  Preposition String
+  Preposition !Text
   deriving (Show)
 
 data ApposCoord =
-  ApposCoord Apposition (Maybe ApposCoord)
+  ApposCoord !Apposition !(Maybe ApposCoord)
   deriving (Show)
 
 data Apposition
-  = AppositionVar Variable
-  | AppositionQuote Quotation
+  = AppositionVar !Variable
+  | AppositionQuote !Quotation
   deriving (Show)
 
 data Quotation =
-  Quotation String
+  Quotation !Text
   deriving (Show)
 
 data Variable =
-  Variable String
+  Variable !Text
   deriving (Show)
 
 data RelativeClauseCoord =
-  RelativeClauseCoord RelativeClause (Maybe (Coord,RelativeClauseCoord))
+  RelativeClauseCoord !RelativeClause !(Maybe (Coord,RelativeClauseCoord))
   deriving (Show)
 
 data PossessiveNPCoord
-  = PossessiveNPCoordGen GenitiveNPCoord
-  | PossessiveNPCoordPronoun PossessivePronounCoord
+  = PossessiveNPCoordGen !GenitiveNPCoord
+  | PossessiveNPCoordPronoun !PossessivePronounCoord
   deriving (Show)
 
 data GenitiveNPCoord
-  = GenitiveNPCoord GenitiveSpecifier GenitiveN' GenitiveTail
-  | GenitiveNPCoordName ProperName GenitiveTail
+  = GenitiveNPCoord !GenitiveSpecifier !GenitiveN' !GenitiveTail
+  | GenitiveNPCoordName !ProperName !GenitiveTail
   deriving (Show)
 
 data ProperName =
-  ProperName String
+  ProperName !Text
   deriving (Show)
 
 data PossessivePronounCoord =
-  PossessivePronounCoord PossessivePronoun
-                         (Maybe PossessivePronounCoord)
+  PossessivePronounCoord !PossessivePronoun
+                         !(Maybe PossessivePronounCoord)
   deriving (Show)
 
 data GenitiveTail
-  = GenitiveTailSaxonTail SaxonGenitiveTail
-  | GenitiveTailCoordtail GenitiveCoordTail
+  = GenitiveTailSaxonTail !SaxonGenitiveTail
+  | GenitiveTailCoordtail !GenitiveCoordTail
   deriving (Show)
 
 data GenitiveCoordTail =
-  GenitiveCoordTail GenitiveNPCoord
+  GenitiveCoordTail !GenitiveNPCoord
   deriving (Show)
 
 data SaxonGenitiveTail =
-  SaxonGenitiveTail SaxonGenitiveMarker (Maybe (GenitiveN',SaxonGenitiveTail))
+  SaxonGenitiveTail !SaxonGenitiveMarker !(Maybe (GenitiveN',SaxonGenitiveTail))
   deriving (Show)
 
 data RelativeClause =
-  RelativeClause VPCoord
+  RelativeClause !VPCoord
   deriving (Show)
 
 data VPCoord
-  = VPCoord' VP Coord VPCoord
-  | VPCoordVP VP
+  = VPCoord' !VP !Coord !VPCoord
+  | VPCoordVP !VP
   deriving (Show)
 
 data GenitiveSpecifier
-  = GenitiveSpecifierD Determiner
-  | GenitiveSpecifierPPC PossessivePronounCoord
-  | GenitiveSpecifierN Number
+  = GenitiveSpecifierD !Determiner
+  | GenitiveSpecifierPPC !PossessivePronounCoord
+  | GenitiveSpecifierN !Number
   deriving (Show)
 
 data GenitiveN' =
-  GenitiveN' (Maybe AdjectiveCoord)
-             N
-             (Maybe ApposCoord)
+  GenitiveN' !(Maybe AdjectiveCoord)
+             !N
+             !(Maybe ApposCoord)
   deriving (Show)
 
 data VP =
-  VP V'
+  VP !V'
   deriving (Show)
 
 data V' =
-  V' (Maybe AdverbCoord) ComplV [VModifier] -- What is *?
+  V' !(Maybe AdverbCoord) !ComplV ![VModifier] -- What is *?
   deriving (Show)
 
 data AdverbCoord =
-  AdverbCoord Adverb (Maybe AdverbCoord)
+  AdverbCoord !Adverb !(Maybe AdverbCoord)
   deriving (Show)
 
 data ComplV =
-  ComplV IntransitiveV
+  ComplV !IntransitiveV
   deriving (Show)
 
 data IntransitiveV =
-  IntransitiveV String
+  IntransitiveV !Text
   deriving (Show)
 
 data IntransitiveAdjective =
-  IntransitiveAdjective String
+  IntransitiveAdjective !Text
   deriving (Show)
 
 data VModifier
-  = VModifierVC AdverbCoord
-  | VModifierPP PP
-  | VModifierAVPP AdverbialPP
+  = VModifierVC !AdverbCoord
+  | VModifierPP !PP
+  | VModifierAVPP !AdverbialPP
   deriving (Show)
 
 data AdverbialPP =
-  AdverbialPP Preposition AdverbCoord
+  AdverbialPP !Preposition !AdverbCoord
   deriving (Show)
 
 data Adverb =
-  Adverb String
+  Adverb !Text
   deriving (Show)
 
 data Specifier
-  = SpecifyDeterminer Determiner
-  | SpecifyPossessive PossessiveNPCoord
-  | SpecifyNumberP NumberP
+  = SpecifyDeterminer !Determiner
+  | SpecifyPossessive !PossessiveNPCoord
+  | SpecifyNumberP !NumberP
   deriving (Show)
 
 data AdjectiveCoord =
-  AdjectiveCoord IntransitiveAdjective
-                 (Maybe AdjectiveCoord)
+  AdjectiveCoord !IntransitiveAdjective
+                 !(Maybe AdjectiveCoord)
   deriving (Show)
 
 data NumberP =
-  NumberP (Maybe GeneralizedQuantor) Number
+  NumberP !(Maybe GeneralizedQuantor) !Number
   deriving (Show)
 
 data Number =
-  Number Integer
+  Number !Integer
   deriving (Show)
 
 data ExistentialGlobalQuantor =
-  ExistentialGlobalQuantor Copula
+  ExistentialGlobalQuantor !Copula
   deriving (Show)
 
 data ExistentialGlobalQuestionQuantor =
-  ExistentialGlobalQuestionQuantor Copula
+  ExistentialGlobalQuestionQuantor !Copula
   deriving (Show)
 
 instance Pretty ExistentialGlobalQuestionQuantor where

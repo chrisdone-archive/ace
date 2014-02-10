@@ -345,8 +345,3 @@ universalGlobalQuantor =
   string "for" *> (everyEach <|> forAll)
   where everyEach = (string "every" <|> string "each") *> pure ForEveryEach
         forAll = string "all" *> pure ForAll
-
-test p s =
-  case tokenize s >>= bimap show id . parse p ""  of
-    Left e -> putStrLn e
-    Right ok -> print ok
