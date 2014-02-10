@@ -1,5 +1,3 @@
-{-# LANGUAGE NoMonomorphismRestriction #-}
-
 -- | Attempto Controlled English parser and printer.
 
 module ACE
