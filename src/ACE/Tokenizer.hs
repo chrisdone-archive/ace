@@ -9,14 +9,15 @@ import Data.Attoparsec.Text
 import Data.Char
 import Data.Text
 
--- | Tokenize some ACE text.
+-- | Tokenize some complete ACE text.
 tokenize :: Text -> Either String [Token]
-tokenize = parseOnly tokenizer
+tokenize =
+  parseOnly (tokenizer <* endOfInput)
 
 -- | The tokenizer.
 tokenizer :: Parser [Token]
 tokenizer =
-  many token
+  many (skipSpace *> token)
 
 -- | Parse a token.
 token :: Parser Token
@@ -51,7 +52,7 @@ questionMark =
 -- containing none of the other token characters.
 word :: Parser Token
 word =
-  Word <$> (skipSpace *> takeWhile1 wordChar <* skipSpace)
+  Word <$> (takeWhile1 wordChar <* skipSpace)
   where
     wordChar c =
       not (isSpace c) &&
