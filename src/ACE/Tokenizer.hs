@@ -1,3 +1,4 @@
+{-# LANGUAGE BangPatterns #-}
 -- | Tokenizer for ACE. Tokens retain source locations (line and column).
 
 module ACE.Tokenizer where
@@ -9,7 +10,7 @@ import           Control.Arrow
 import           Control.Monad
 import           Data.Attoparsec.Text
 import           Data.Char
-import           Data.Text
+import           Data.Text (Text)
 import qualified Data.Text as T
 
 -- | Tokenize some complete ACE text.
@@ -18,7 +19,7 @@ tokenize =
   parseOnly (fmap fst tokenizer <* endOfInput)
 
 -- | The tokenizer.
--- tokenizer :: Parser [Token]
+tokenizer :: Parser ([Token],(Int,Int))
 tokenizer =
   manyWithPos (spaces >=> token) (1,0)
 
@@ -79,15 +80,15 @@ manyWithPos p pos =
      case r of
        (Nothing,_) ->
          return ([],pos)
-       (Just x,newpos) ->
+       (Just x,newpos@(!_,!_)) ->
          do (xs,finalpos) <- manyWithPos p newpos
             return (x:xs,finalpos)
 
 -- | Skip spaces (space, newline, tab (=4 spaces)) and keep
 -- positioning information up to date.
 spaces :: (Int,Int) -> Parser (Int,Int)
-spaces (line,col) =
-  go line col
+spaces (sline,scol) =
+  go sline scol
   where
     go line col =
       do c <- peekChar
