@@ -265,26 +265,28 @@ import Control.Applicative
 -- number =
 --   (Number . read) <$> many1 digit
 
--- existentialGlobalQuantor =
---   string "there " *> (ExistentialGlobalQuantor <$> copula)
+-- | There is/are.
+existentialGlobalQuantor =
+  string "there " *> (ExistentialGlobalQuantor <$> copula)
 
--- existentialGlobalQuestionQuantor =
---   (ExistentialGlobalQuestionQuantor <$> copula) *> string " there"
+-- | Is/are there?
+existentialGlobalQuestionQuantor =
+  (ExistentialGlobalQuestionQuantor <$> copula) <* string " there"
 
--- -- | Do/does.
--- aux =
---   (string "do" *> pure Do) <|>
---   (string "does" *> pure Does)
+-- | Do/does.
+aux =
+  (string "do" *> pure Do) <|>
+  (string "does" *> pure Does)
 
--- -- | And/or.
--- coord =
---   (string "and" *> pure And) <|>
---   (string "or" *> pure Or)
+-- | And/or.
+coord =
+  (string "and" *> pure And) <|>
+  (string "or" *> pure Or)
 
--- -- | Is/are.
--- copula =
---   (string "is" *> pure Is) <|>
---   (string "are" *> pure Are)
+-- | Is/are.
+copula =
+  (string "is" *> pure Is) <|>
+  (string "are" *> pure Are)
 
 -- determiner =
 --   (string "the " *> pure The) <|>
