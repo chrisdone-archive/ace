@@ -10,12 +10,11 @@ import ACE.Tokenizer (tokenize)
 import ACE.Types.Syntax
 import ACE.Types.Tokens
 
-import Data.Bifunctor
-import Text.Parsec.Prim (Stream,ParsecT,parse,try)
 import Control.Applicative
-
-import Test.Hspec
+import Data.Bifunctor
 import Test.HUnit
+import Test.Hspec
+import Text.Parsec.Prim (Stream,ParsecT,parse,try)
 
 -- | Test suite entry point, returns exit failure if any test fails.
 main :: IO ()
