@@ -17,16 +17,11 @@ import Data.Bifunctor
 import Text.Parsec.Prim (Stream,ParsecT,parse,try)
 import Text.Parsec ()
 
--- | Specifications consist of a sentence coordination followed by a
--- period and optionally one ore more subsequent specifications.
 specification =
   Specification
     <$> sentenceCoord <* period
     <*> optional (try specification)
 
--- | Sentences can be coordinated by @and@ and @or@. @And@ refers to the
--- logical conjunction, while @or@ de-notes the logical disjunction. The
--- logical conjunction has a higher precedence than the disjunction.
 sentenceCoord =
   SentenceCoord
     <$> sentenceCoord_1
@@ -126,15 +121,12 @@ apposition =
   (AppositionVar <$> variable) <|>
   (AppositionQuote <$> quotation)
 
--- | Some variable.
 variable =
   Variable <$> string "<variable>"
 
--- | Some quoted.
 quotation =
   Quotation <$> quoted
 
--- | A relative clause coordination.
 relativeClauseCoord =
   RelativeClauseCoord
     <$> relativeClause
@@ -162,7 +154,6 @@ saxonGenitiveTail =
     <*> optional ((,) <$> genitiveN'
                       <*> saxonGenitiveTail)
 
--- | Saxon genitive: The Parsons', the forest's.
 saxonGenitiveMarker =
   fmap (\s -> if s then ApostropheS else Apostrophe)
        genitive
@@ -170,7 +161,6 @@ saxonGenitiveMarker =
 relativeClause =
   RelativeClause <$> vpCoord
 
--- | Verb phrase coordination.
 vpCoord =
   do vp <- vp
      (try (VPCoord'
@@ -191,26 +181,13 @@ genitiveN' =
     <*> n
     <*> optional apposCoord
 
--- | Verb phrase.
 vp =
   VP <$> v'
 
--- | Verb.
 v' =
   V' <$> optional adverbCoord
      <*> complV
      <*> many vModifier
-
-adverbCoord =
-  AdverbCoord <$> adverb
-              <*> optional adverbCoord
-
-complV =
-  ComplV <$> intransitiveV
-
--- | Intransitive verb.
-intransitiveV =
-  IntransitiveV <$> string "<intransitive-verb>"
 
 vModifier =
   vModifierVC <|> vModifierPP <|> vModifierAVPP
@@ -226,33 +203,8 @@ adverbialPP =
     <$> preposition
     <*> adverbCoord
 
--- | An adverb.
-adverb =
-  Adverb <$> string "<adverb>"
-
-specifier =
-  specifierDeterminer <|>
-  specifierPossessive <|>
-  specifierNumber
-  where specifierDeterminer =
-          SpecifyDeterminer <$> determiner
-        specifierPossessive =
-          SpecifyPossessive <$> possessiveNPCoord
-        specifierNumber =
-          SpecifyNumberP <$> numberP
-
 possessiveNPCoord =
   PossessiveNPCoordGen <$> genitiveNPCoord
-
--- | Intransitive adjective.
-intransitiveAdjective =
-  IntransitiveAdjective <$> string "<intransitive-adjective>"
-
--- | Adjective coordination.
-adjectiveCoord =
-  AdjectiveCoord
-    <$> intransitiveAdjective
-    <*> optional (string "and" *> adjectiveCoord)
 
 genitiveNPCoord =
   specifier <|> name
@@ -265,6 +217,43 @@ genitiveNPCoord =
           GenitiveNPCoordName
             <$> properName
             <*> genitiveTail
+
+specifier =
+  specifierDeterminer <|>
+  specifierPossessive <|>
+  specifierNumber
+  where specifierDeterminer =
+          SpecifyDeterminer <$> determiner
+        specifierPossessive =
+          SpecifyPossessive <$> possessiveNPCoord
+        specifierNumber =
+          SpecifyNumberP <$> numberP
+
+complV =
+  ComplV <$> intransitiveV
+
+-- | Some intransitive verb.
+intransitiveV =
+  IntransitiveV <$> string "<intransitive-verb>"
+
+-- | Adverb coordination: quickly and hastily and manually
+adverbCoord =
+  AdverbCoord <$> adverb
+              <*> optional (string "and" *> adverbCoord)
+
+-- | Adverb: quickly
+adverb =
+  Adverb <$> string "<adverb>"
+
+-- | Adjective coordination: correct and green
+adjectiveCoord =
+  AdjectiveCoord
+    <$> intransitiveAdjective
+    <*> optional (string "and" *> adjectiveCoord)
+
+-- | Intransitive adjective: correct, green, valid
+intransitiveAdjective =
+  IntransitiveAdjective <$> string "<intransitive-adjective>"
 
 -- | A determiner: the, an, not every, etc.
 determiner =
@@ -281,7 +270,7 @@ determiner =
   (string "all" *> pure All) <|>
   (string "which" *> pure Which)
 
--- | A number phrase.
+-- | A number phrase: more than 5
 numberP =
   NumberP
     <$> optional generalizedQuantor
@@ -342,10 +331,3 @@ universalGlobalQuantor =
   string "for" *> (everyEach <|> forAll)
   where everyEach = (string "every" <|> string "each") *> pure ForEveryEach
         forAll = string "all" *> pure ForAll
-
-parsed p = tokenize >=> bimap show id . parse p ""
-
-test p s =
-  case parsed p s of
-    Left e -> putStrLn e
-    Right p -> print p

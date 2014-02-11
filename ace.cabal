@@ -39,4 +39,5 @@ test-suite test
                    HUnit,
                    hspec,
                    parsec,
-                   bifunctors
+                   bifunctors,
+                   text
