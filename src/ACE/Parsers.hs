@@ -7,11 +7,15 @@
 module ACE.Parsers where
 
 import ACE.Combinators
+import ACE.Tokenizer (tokenize)
 import ACE.Types.Syntax
 import ACE.Types.Tokens
 
-import Text.Parsec.Prim (Stream,ParsecT,parse,try)
 import Control.Applicative
+import Control.Monad
+import Data.Bifunctor
+import Text.Parsec.Prim (Stream,ParsecT,parse,try)
+import Text.Parsec ()
 
 -- | Specifications consist of a sentence coordination followed by a
 -- period and optionally one ore more subsequent specifications.
@@ -158,6 +162,11 @@ saxonGenitiveTail =
     <*> optional ((,) <$> genitiveN'
                       <*> saxonGenitiveTail)
 
+-- | Saxon genitive: The Parsons', the forest's.
+saxonGenitiveMarker =
+  fmap (\s -> if s then ApostropheS else Apostrophe)
+       genitive
+
 relativeClause =
   RelativeClause <$> vpCoord
 
@@ -278,11 +287,13 @@ numberP =
 
 -- | There is/are.
 existentialGlobalQuantor =
-  string "there " *> (ExistentialGlobalQuantor <$> copula)
+  string "there" *>
+  (ExistentialGlobalQuantor <$> copula)
 
 -- | Is/are there?
 existentialGlobalQuestionQuantor =
-  (ExistentialGlobalQuestionQuantor <$> copula) <* string " there"
+  (ExistentialGlobalQuestionQuantor <$> copula) <*
+  string "there"
 
 -- | Do/does.
 aux =
@@ -324,13 +335,15 @@ possessivePronoun =
           pure HisHer
         its = string "its" *> pure Its
 
--- | Saxon genitive: The Parsons', the forest's.
-saxonGenitiveMarker =
-  (genitive True *> pure ApostropheS) <|>
-  (genitive False *> pure Apostrophe)
-
 -- | A universal global quantor: for every/for each, for all.
 universalGlobalQuantor =
   string "for" *> (everyEach <|> forAll)
   where everyEach = (string "every" <|> string "each") *> pure ForEveryEach
         forAll = string "all" *> pure ForAll
+
+parsed p = tokenize >=> bimap show id . parse p ""
+
+test p s =
+  case parsed p s of
+    Left e -> putStrLn e
+    Right p -> print p

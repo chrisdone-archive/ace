@@ -21,12 +21,12 @@ string s =
          _ -> Nothing)
 
 -- | Match a Saxon genitive.
-genitive :: Stream s m Token => Bool -> ParsecT s u m Bool
-genitive s =
+genitive :: Stream s m Token => ParsecT s u m Bool
+genitive =
   satisfy
     (\t ->
        case t of
-         Genitive _ hasS -> Just (hasS == s)
+         Genitive _ hasS -> Just hasS
          _ -> Nothing)
 
 -- | Match a word with the given string.

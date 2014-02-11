@@ -37,7 +37,7 @@ token pos =
   word pos
 
 -- | Parse a number.
-number :: (Int, Int) -> Parser (Token, (Int, Int))
+number :: (Int, Int) -> Parser (Token, (Int,Int))
 number pos =
   fmap (\n -> (Number pos (either (const 0) fst (T.decimal n)),second (+ T.length n) pos))
        (takeWhile1 isDigit)
@@ -83,7 +83,7 @@ word pos =
 
 -- | Parse the Saxon genitive ' or 's. This is ran after parsing every
 -- token, but is expected to fail most of the time.
-genitive :: (Int, Int) -> Parser (Maybe (Token, (Int, Int)))
+genitive :: (Int, Int) -> Parser (Maybe (Token,(Int, Int)))
 genitive pos =
   optional go
   where
