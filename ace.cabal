@@ -40,4 +40,5 @@ test-suite test
                    hspec,
                    parsec,
                    bifunctors,
-                   text
+                   text,
+                   mtl

@@ -1,4 +1,6 @@
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE NoMonomorphismRestriction #-}
 
 -- | Test suite for ACE.
 
@@ -12,11 +14,12 @@ import ACE.Types.Tokens
 
 import Control.Applicative
 import Control.Monad
+import Control.Monad.Identity
 import Data.Bifunctor
 import Data.Text (Text)
 import Test.HUnit
 import Test.Hspec
-import Text.Parsec (Stream,ParsecT,parse,try,Parsec)
+import Text.Parsec (Stream,ParsecT,runP,try,Parsec)
 
 -- | Test suite entry point, returns exit failure if any test fails.
 main :: IO ()
@@ -82,13 +85,13 @@ parser =
      it "determiner"
         (parsed determiner "not every" == Right NotEveryEach)
      it "adjectiveCoord"
-        (parsed adjectiveCoord "<intransitive-adjective>" ==
-         Right (AdjectiveCoord (IntransitiveAdjective "<intransitive-adjective>")
+        (parsed adjectiveCoord "<intrans-adj>" ==
+         Right (AdjectiveCoord (IntransitiveAdjective "<intrans-adj>")
                                Nothing))
      it "adjectiveCoord"
-        (parsed adjectiveCoord "<intransitive-adjective> and <intransitive-adjective>" ==
-         Right (AdjectiveCoord (IntransitiveAdjective "<intransitive-adjective>")
-                               (Just (AdjectiveCoord (IntransitiveAdjective "<intransitive-adjective>")
+        (parsed adjectiveCoord "<intrans-adj> and <intrans-adj>" ==
+         Right (AdjectiveCoord (IntransitiveAdjective "<intrans-adj>")
+                               (Just (AdjectiveCoord (IntransitiveAdjective "<intrans-adj>")
                                                      Nothing))))
      it "adverbCoord"
         (parsed adverbCoord "<adverb> and <adverb>" ==
@@ -101,5 +104,15 @@ isLeft :: Either a b -> Bool
 isLeft = either (const True) (const False)
 
 -- | Get the parsed result after tokenizing.
-parsed :: Parsec [Token] () c -> Text -> Either String c
-parsed p = tokenize >=> bimap show id . parse p ""
+parsed :: Parsec [Token] (ACEParser [Token] Identity) c -> Text -> Either String c
+parsed p = tokenize >=> bimap show id . runP p config "<test>"
+  where
+    config =
+      ACE { aceIntransitiveAdjective = string "<intrans-adj>"
+          , aceNoun                  = string "<noun>"
+          , acePreposition           = string "<prep>"
+          , aceVariable              = string "<var>"
+          , aceProperName            = string "<proper-name>"
+          , aceAdverb                = string "<adverb>"
+          , aceIntransitiveVerb      = string "<intrans-verb>"
+          }

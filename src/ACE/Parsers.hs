@@ -14,8 +14,20 @@ import ACE.Types.Tokens
 import Control.Applicative
 import Control.Monad
 import Data.Bifunctor
-import Text.Parsec.Prim (Stream,ParsecT,parse,try)
+import Data.Text (Text)
 import Text.Parsec ()
+import Text.Parsec.Prim (Stream,ParsecT,parse,try,getState)
+
+-- | Parser configuration.
+data ACEParser s m = ACE
+  { aceIntransitiveAdjective :: ParsecT s (ACEParser s m) m Text -- ^ Parser for intransitive adjectives.
+  , aceNoun                  :: ParsecT s (ACEParser s m) m Text -- ^ Parser for nouns.
+  , acePreposition           :: ParsecT s (ACEParser s m) m Text -- ^ Parser for prepositions.
+  , aceVariable              :: ParsecT s (ACEParser s m) m Text -- ^ Parser for variables.
+  , aceProperName            :: ParsecT s (ACEParser s m) m Text -- ^ Parser for proper names.
+  , aceAdverb                :: ParsecT s (ACEParser s m) m Text -- ^ Parser for adverbs.
+  , aceIntransitiveVerb      :: ParsecT s (ACEParser s m) m Text -- ^ Parser for intransitive verbs.
+  }
 
 specification =
   Specification
@@ -103,14 +115,14 @@ n' =
      <*> optional relativeClauseCoord
 
 n =
-  N <$> string "<noun>"
+  N <$> join (fmap aceNoun getState)
 
 pp =
   PP <$> preposition
      <*> npCoord
 
 preposition =
-  Preposition <$> string "<preposition>"
+  Preposition <$> join (fmap acePreposition getState)
 
 apposCoord =
   ApposCoord
@@ -122,7 +134,7 @@ apposition =
   (AppositionQuote <$> quotation)
 
 variable =
-  Variable <$> string "<variable>"
+  Variable <$> join (fmap aceVariable getState)
 
 quotation =
   Quotation <$> quoted
@@ -134,7 +146,7 @@ relativeClauseCoord =
                       <*> relativeClauseCoord)
 
 properName =
-  ProperName <$> string "<proper-name>"
+  ProperName <$> join (fmap aceProperName getState)
 
 possessivePronounCoord =
   PossessivePronounCoord
@@ -234,7 +246,7 @@ complV =
 
 -- | Some intransitive verb.
 intransitiveV =
-  IntransitiveV <$> string "<intransitive-verb>"
+  IntransitiveV <$> join (fmap aceIntransitiveVerb getState)
 
 -- | Adverb coordination: quickly and hastily and manually
 adverbCoord =
@@ -243,7 +255,7 @@ adverbCoord =
 
 -- | Adverb: quickly
 adverb =
-  Adverb <$> string "<adverb>"
+  Adverb <$> join (fmap aceAdverb getState)
 
 -- | Adjective coordination: correct and green
 adjectiveCoord =
@@ -253,7 +265,7 @@ adjectiveCoord =
 
 -- | Intransitive adjective: correct, green, valid
 intransitiveAdjective =
-  IntransitiveAdjective <$> string "<intransitive-adjective>"
+  IntransitiveAdjective <$> join (fmap aceIntransitiveAdjective getState)
 
 -- | A determiner: the, an, not every, etc.
 determiner =
