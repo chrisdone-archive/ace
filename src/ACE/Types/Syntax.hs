@@ -110,7 +110,7 @@ data NPCoord =
   deriving (Show,Eq)
 
 data UnmarkedNPCoord =
-  UnmarkedNPCoord !NP !UnmarkedNPCoord
+  UnmarkedNPCoord !NP !(Maybe UnmarkedNPCoord)
   deriving (Show,Eq)
 
 -- | Modified noun.

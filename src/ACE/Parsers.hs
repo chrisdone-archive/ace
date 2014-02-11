@@ -94,7 +94,7 @@ npCoord =
 unmarkedNPCoord =
   UnmarkedNPCoord
     <$> np
-    <*> unmarkedNPCoord
+    <*> optional (string "and" *> unmarkedNPCoord)
 
 np =
   NP <$> specifier
@@ -172,11 +172,13 @@ relativeClause =
 
 -- | Verb phrase coordination.
 vpCoord =
-  (VPCoord'
-     <$> vp
-     <*> coord
-     <*> vpCoord) <|>
-  VPCoordVP <$> vp
+  do vp <- vp
+     (try (VPCoord'
+             <$> pure vp
+             <*> coord
+             <*> vpCoord) <|>
+      (VPCoordVP
+         <$> pure vp))
 
 genitiveSpecifier =
   (GenitiveSpecifierD <$> determiner) <|>
