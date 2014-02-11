@@ -73,11 +73,14 @@ parser =
      it "distributiveGlobalQuantor"
         (parsed distributiveGlobalQuantor "for each of" == Right ForEachOf)
      it "existentialGlobalQuestionQuantor"
-        (parsed existentialGlobalQuestionQuantor "is there" == Right (ExistentialGlobalQuestionQuantor Is))
+        (parsed existentialGlobalQuestionQuantor "is there" ==
+         Right (ExistentialGlobalQuestionQuantor Is))
      it "existentialGlobalQuantor"
-        (parsed existentialGlobalQuantor "there is" == Right (ExistentialGlobalQuantor Is))
+        (parsed existentialGlobalQuantor "there is" ==
+         Right (ExistentialGlobalQuantor Is))
      it "numberP"
-        (parsed numberP "not more than 5" == Right (NumberP (Just NotMoreThan) 5))
+        (parsed numberP "not more than 5" ==
+         Right (NumberP (Just NotMoreThan) 5))
      it "numberP"
         (parsed numberP "5" == Right (NumberP Nothing 5))
      it "determiner"
