@@ -286,6 +286,8 @@ apGrad = apGradThan <|> apGrad'
   where apGradThan = APgradAPThan <$> try (ap <* string "then") <*> npCoord
         apGrad' = APgradAP <$> ap
 
+-- | An adjective phrase. Transitive (fond of Mary, interested in an
+-- account) or intransitive (correct, green, valid).
 ap =
   (APTrans <$> transitiveAdjective <*> pp) <|>
   (APIntrans <$> intransitiveAdjective)
