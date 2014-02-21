@@ -105,8 +105,9 @@ data ExistentialTopic =
                    !NPCoord
   deriving (Show,Eq)
 
-data NPCoord =
-  NPCoordDistributed !DistributiveMarker !UnmarkedNPCoord
+data NPCoord
+  = NPCoordDistributed !DistributiveMarker !UnmarkedNPCoord
+  | NPCoordUnmarked !UnmarkedNPCoord
   deriving (Show,Eq)
 
 data UnmarkedNPCoord =
@@ -226,12 +227,60 @@ data AdverbCoord =
   AdverbCoord !Adverb !(Maybe AdverbCoord)
   deriving (Show,Eq)
 
-data ComplV =
-  ComplV !IntransitiveV
+data ComplV
+  = ComplVIV !IntransitiveV
+  | ComplVPI !PhrasalIntransitiveV !PhrasalParticle
+  | ComplVTV !TransitiveV !Compl
+  | ComplVPV !PhrasalParticle !Compl
+  | ComplVPV' !Compl !PhrasalParticle
+  | ComplVDisV !Compl !Compl
+  | ComplVPDV !Compl !PhrasalParticle !Compl
+  | ComplVCopula !Copula !CopulaCompl
+  deriving (Show,Eq)
+
+data CopulaCompl
+  = CopulaComplAPC !APCoord
+  | CopulaComplNPC !NPCoord
+  | CopulaComplPP  !PP
+  deriving (Show,Eq)
+
+data APCoord
+  = APCoordAnd !APgrad !APCoord
+  | APCoord !APgrad
+  deriving (Show,Eq)
+
+data APgrad
+  = APgradAPThan !AP !NPCoord
+  | APgradAP !AP
+  deriving (Show,Eq)
+
+data AP
+  = APIntrans !IntransitiveAdjective
+  | APTrans !TransitiveAdjective !PP
+  deriving (Show,Eq)
+
+data TransitiveAdjective =
+  TransitiveAdjective !Text
+  deriving (Show,Eq)
+
+data Compl =
+  Compl !NPCoord !PP
+  deriving (Show,Eq)
+
+data PhrasalIntransitiveV =
+  PhrasalIntransitiveV !Text
+  deriving (Show,Eq)
+
+data PhrasalParticle =
+  PhrasalParticle !Text
   deriving (Show,Eq)
 
 data IntransitiveV =
   IntransitiveV !Text
+  deriving (Show,Eq)
+
+data TransitiveV =
+  TransitiveV !Text
   deriving (Show,Eq)
 
 data IntransitiveAdjective =

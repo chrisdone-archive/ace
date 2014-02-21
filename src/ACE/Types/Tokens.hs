@@ -8,9 +8,7 @@ module ACE.Types.Tokens
   ,tokenPos)
   where
 
-import Data.Data (Data,Typeable)
 import Data.Text (Text)
-import GHC.Generics (Generic)
 
 -- | A token
 data Token
@@ -21,7 +19,7 @@ data Token
   | QuestionMark !(Int,Int)
   | Genitive !(Int,Int) !Bool
   | Number !(Int,Int) !Integer
-  deriving (Show,Eq,Data,Typeable,Generic)
+  deriving (Show,Eq)
 
 -- | Get the position of the token.
 tokenPos :: Token -> (Int, Int)

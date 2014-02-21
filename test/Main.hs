@@ -13,8 +13,8 @@ import ACE.Types.Syntax
 import ACE.Types.Tokens
 
 import Control.Applicative
-import Control.Monad
-import Control.Monad.Identity
+import Control.Monad hiding (ap)
+import Control.Monad.Identity hiding (ap)
 import Data.Bifunctor
 import Data.Text (Text)
 import Test.HUnit
@@ -101,6 +101,20 @@ parser =
          Right (AdverbCoord (Adverb "<adverb>")
                             (Just (AdverbCoord (Adverb "<adverb>")
                                                Nothing))))
+     it "ap"
+        (parsed ap "<intrans-adj>" ==
+         Right (APIntrans (IntransitiveAdjective "<intrans-adj>")))
+     it "ap"
+        (parsed ap "<trans-adj> <prep> a <noun>" ==
+         Right (APTrans (TransitiveAdjective "<trans-adj>")
+                        (PP (Preposition "<prep>")
+                            (NPCoordUnmarked (UnmarkedNPCoord (NP (SpecifyDeterminer A)
+                                                                  (N' Nothing
+                                                                      (N "<noun>")
+                                                                      Nothing
+                                                                      Nothing
+                                                                      Nothing))
+                                                              Nothing)))))
 
 -- | Is that left?
 isLeft :: Either a b -> Bool
@@ -112,10 +126,13 @@ parsed p = tokenize >=> bimap show id . runP p config "<test>"
   where
     config =
       ACE { aceIntransitiveAdjective = string "<intrans-adj>"
+          , aceTransitiveAdjective   = string "<trans-adj>"
           , aceNoun                  = string "<noun>"
           , acePreposition           = string "<prep>"
           , aceVariable              = string "<var>"
           , aceProperName            = string "<proper-name>"
           , aceAdverb                = string "<adverb>"
           , aceIntransitiveVerb      = string "<intrans-verb>"
+          , acePhrasalParticle       = string "<pparticle>"
+          , acePhrasalIntransitiveV  = string "<pintrans-verb>"
           }
