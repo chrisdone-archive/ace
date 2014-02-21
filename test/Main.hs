@@ -19,7 +19,7 @@ import Data.Bifunctor
 import Data.Text (Text)
 import Test.HUnit
 import Test.Hspec
-import Text.Parsec (Stream,ParsecT,runP,try,Parsec)
+import Text.Parsec (Stream,ParsecT,runP,try,Parsec,eof)
 
 -- | Test suite entry point, returns exit failure if any test fails.
 main :: IO ()
@@ -108,13 +108,17 @@ parser =
         (parsed ap "<trans-adj> <prep> a <noun>" ==
          Right (APTrans (TransitiveAdjective "<trans-adj>")
                         (PP (Preposition "<prep>")
-                            (NPCoordUnmarked (UnmarkedNPCoord (NP (SpecifyDeterminer A)
-                                                                  (N' Nothing
-                                                                      (N "<noun>")
-                                                                      Nothing
-                                                                      Nothing
-                                                                      Nothing))
-                                                              Nothing)))))
+                            (NPCoordUnmarked (UnmarkedNPCoord anoun Nothing)))))
+     it "apGrad"
+        (parsed apGrad "<intrans-adj> than a <noun>" ==
+         Right (APgradAPThan (APIntrans (IntransitiveAdjective "<intrans-adj>"))
+                             (NPCoordUnmarked (UnmarkedNPCoord anoun Nothing))))
+  where anoun = (NP (SpecifyDeterminer A)
+                    (N' Nothing
+                        (N "<noun>")
+                        Nothing
+                        Nothing
+                        Nothing))
 
 -- | Is that left?
 isLeft :: Either a b -> Bool
@@ -122,7 +126,7 @@ isLeft = either (const True) (const False)
 
 -- | Get the parsed result after tokenizing.
 parsed :: Parsec [Token] (ACEParser [Token] Identity) c -> Text -> Either String c
-parsed p = tokenize >=> bimap show id . runP p config "<test>"
+parsed p = tokenize >=> bimap show id . runP (p <* eof) config "<test>"
   where
     config =
       ACE { aceIntransitiveAdjective = string "<intrans-adj>"

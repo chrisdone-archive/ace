@@ -283,7 +283,7 @@ apCoord = apCoordAnd <|> apCoord'
         apCoord' = APCoord <$> apGrad
 
 apGrad = apGradThan <|> apGrad'
-  where apGradThan = APgradAPThan <$> try (ap <* string "then") <*> npCoord
+  where apGradThan = APgradAPThan <$> try (ap <* string "than") <*> npCoord
         apGrad' = APgradAP <$> ap
 
 -- | An adjective phrase. Transitive (fond of Mary, interested in an
