@@ -62,6 +62,69 @@ tokenizer =
 -- | Parser tests.
 parser :: Spec
 parser =
+  do simple
+     adjective
+     ap'
+     copulae
+     complVs
+
+adjective =
+  do it "adjectiveCoord"
+        (parsed adjectiveCoord "<intrans-adj>" ==
+         Right (AdjectiveCoord intransAdj
+                               Nothing))
+     it "adjectiveCoord"
+        (parsed adjectiveCoord "<intrans-adj> and <intrans-adj>" ==
+         Right (AdjectiveCoord intransAdj
+                               (Just (AdjectiveCoord intransAdj
+                                                     Nothing))))
+     it "adverbCoord"
+        (parsed adverbCoord "<adverb> and <adverb>" ==
+         Right (AdverbCoord adverb'
+                            (Just (AdverbCoord adverb'
+                                               Nothing))))
+
+ap' =
+  do it "ap"
+          (parsed ap "<intrans-adj>" ==
+           Right (APIntrans intransAdj))
+     it "ap"
+        (parsed ap "<trans-adj> <prep> a <noun>" ==
+         Right (APTrans (TransitiveAdjective "<trans-adj>")
+                        (PP (Preposition "<prep>")
+                            (NPCoordUnmarked (UnmarkedNPCoord anoun Nothing)))))
+     it "apGrad"
+        (parsed apGrad "<intrans-adj> than a <noun>" ==
+         Right (APgradAPThan (APIntrans intransAdj)
+                             (NPCoordUnmarked (UnmarkedNPCoord anoun Nothing))))
+     it "apCoord"
+        (parsed apCoord "<intrans-adj> than a <noun> and <intrans-adj> than a <noun>" ==
+         Right (APCoordAnd (APgradAPThan (APIntrans intransAdj)
+                                         (NPCoordUnmarked (UnmarkedNPCoord anoun Nothing)))
+                           (APCoord (APgradAPThan (APIntrans intransAdj)
+                                                  (NPCoordUnmarked (UnmarkedNPCoord anoun Nothing))))))
+
+copulae =
+  do it "copulaCompl"
+        (parsed copulaCompl "<prep> a <noun>" ==
+         Right (CopulaComplPP (PP (Preposition "<prep>")
+                                  (NPCoordUnmarked
+                                     (UnmarkedNPCoord anoun
+                                                      Nothing)))))
+     it "copulaCompl"
+        (parsed copulaCompl "a <noun> and a <noun>" ==
+         Right (CopulaComplNPC (NPCoordUnmarked
+                                  (UnmarkedNPCoord anoun
+                                                   (Just (UnmarkedNPCoord anoun Nothing))))))
+     it "copulaCompl"
+        (parsed copulaCompl "<intrans-adj> than a <noun> and a <noun>" ==
+         Right (CopulaComplAPC
+                  (APCoord
+                     (APgradAPThan (APIntrans intransAdj)
+                                   (NPCoordUnmarked (UnmarkedNPCoord anoun
+                                                                     (Just (UnmarkedNPCoord anoun Nothing))))))))
+
+simple =
   do it "universalGlobalQuantor"
         (parsed universalGlobalQuantor "for every" == Right ForEveryEach)
      it "possessivePronoun"
@@ -87,57 +150,9 @@ parser =
         (parsed determiner "the" == Right The)
      it "determiner"
         (parsed determiner "not every" == Right NotEveryEach)
-     it "adjectiveCoord"
-        (parsed adjectiveCoord "<intrans-adj>" ==
-         Right (AdjectiveCoord intransAdj
-                               Nothing))
-     it "adjectiveCoord"
-        (parsed adjectiveCoord "<intrans-adj> and <intrans-adj>" ==
-         Right (AdjectiveCoord intransAdj
-                               (Just (AdjectiveCoord intransAdj
-                                                     Nothing))))
-     it "adverbCoord"
-        (parsed adverbCoord "<adverb> and <adverb>" ==
-         Right (AdverbCoord adverb
-                            (Just (AdverbCoord adverb
-                                               Nothing))))
-     it "ap"
-        (parsed ap "<intrans-adj>" ==
-         Right (APIntrans intransAdj))
-     it "ap"
-        (parsed ap "<trans-adj> <prep> a <noun>" ==
-         Right (APTrans (TransitiveAdjective "<trans-adj>")
-                        (PP (Preposition "<prep>")
-                            (NPCoordUnmarked (UnmarkedNPCoord anoun Nothing)))))
-     it "apGrad"
-        (parsed apGrad "<intrans-adj> than a <noun>" ==
-         Right (APgradAPThan (APIntrans intransAdj)
-                             (NPCoordUnmarked (UnmarkedNPCoord anoun Nothing))))
-     it "apCoord"
-        (parsed apCoord "<intrans-adj> than a <noun> and <intrans-adj> than a <noun>" ==
-         Right (APCoordAnd (APgradAPThan (APIntrans intransAdj)
-                                         (NPCoordUnmarked (UnmarkedNPCoord anoun Nothing)))
-                           (APCoord (APgradAPThan (APIntrans intransAdj)
-                                                  (NPCoordUnmarked (UnmarkedNPCoord anoun Nothing))))))
-     it "copulaCompl"
-        (parsed copulaCompl "<prep> a <noun>" ==
-         Right (CopulaComplPP (PP (Preposition "<prep>")
-                                  (NPCoordUnmarked
-                                     (UnmarkedNPCoord anoun
-                                                      Nothing)))))
-     it "copulaCompl"
-        (parsed copulaCompl "a <noun> and a <noun>" ==
-         Right (CopulaComplNPC (NPCoordUnmarked
-                                  (UnmarkedNPCoord anoun
-                                                   (Just (UnmarkedNPCoord anoun Nothing))))))
-     it "copulaCompl"
-        (parsed copulaCompl "<intrans-adj> than a <noun> and a <noun>" ==
-         Right (CopulaComplAPC
-                  (APCoord
-                     (APgradAPThan (APIntrans intransAdj)
-                                   (NPCoordUnmarked (UnmarkedNPCoord anoun
-                                                                     (Just (UnmarkedNPCoord anoun Nothing))))))))
-     it "complVPI"
+
+complVs =
+  do it "complVPI"
         (parsed complV "<pintrans-verb> <pparticle>" ==
          Right (ComplVPI (PhrasalIntransitiveV "<pintrans-verb>") (PhrasalParticle "<pparticle>")))
      it "complVIV"
@@ -149,14 +164,23 @@ parser =
                          (ComplPP (PP (Preposition "<prep>")
                                       (NPCoordUnmarked
                                          (UnmarkedNPCoord anoun Nothing))))))
-  where intransAdj = IntransitiveAdjective "<intrans-adj>"
-        adverb = Adverb "<adverb>"
-        anoun = (NP (SpecifyDeterminer A)
-                     (N' Nothing
-                         (N "<noun>")
-                         Nothing
-                         Nothing
-                         Nothing))
+     it "complVPV"
+        (parsed complV "<ptrans-verb> <pparticle> a <noun>" ==
+         Right (ComplVPV (PhrasalTransitiveV "<ptrans-verb>")
+                         (PhrasalParticle "<pparticle>")
+                         (ComplNP (NPCoordUnmarked
+                                     (UnmarkedNPCoord anoun Nothing)))))
+
+intransAdj = IntransitiveAdjective "<intrans-adj>"
+
+adverb' = Adverb "<adverb>"
+
+anoun = (NP (SpecifyDeterminer A)
+             (N' Nothing
+                 (N "<noun>")
+                 Nothing
+                 Nothing
+                 Nothing))
 
 -- | Is that left?
 isLeft :: Either a b -> Bool
@@ -178,4 +202,5 @@ parsed p = tokenize >=> bimap show id . runP (p <* eof) config "<test>"
           , acePhrasalParticle       = string "<pparticle>"
           , acePhrasalIntransitiveV  = string "<pintrans-verb>"
           , aceTransitiveVerb        = string "<trans-verb>"
+          , acePhrasalTransitiveV    = string "<ptrans-verb>"
           }

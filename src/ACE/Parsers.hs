@@ -29,6 +29,7 @@ data ACEParser s m = ACE
   , aceProperName            :: ParsecT s (ACEParser s m) m Text -- ^ Parser for proper names.
   , aceAdverb                :: ParsecT s (ACEParser s m) m Text -- ^ Parser for adverbs.
   , aceIntransitiveVerb      :: ParsecT s (ACEParser s m) m Text -- ^ Parser for intransitive verbs.
+  , acePhrasalTransitiveV     :: ParsecT s (ACEParser s m) m Text -- ^ Parser for phrasal transitive verbs.
   , aceTransitiveVerb        :: ParsecT s (ACEParser s m) m Text -- ^ Parser for transitive verbs.
   , acePhrasalParticle       :: ParsecT s (ACEParser s m) m Text -- ^ Parser for phrasal particles.
   , acePhrasalIntransitiveV  :: ParsecT s (ACEParser s m) m Text -- ^ Parser for phrasal intransitive verbs.
@@ -48,6 +49,7 @@ defaultACEParser =
       , acePhrasalParticle       = string "<pparticle>"
       , acePhrasalIntransitiveV  = string "<pintrans-verb>"
       , aceTransitiveVerb        = string "<trans-verb>"
+      , acePhrasalTransitiveV    = string "<ptrans-verb>"
       }
 
 specification =
@@ -267,17 +269,28 @@ genitiveNPCoord =
 complV =
   complVIV <|>
   complVPI <|>
-  complVTV
-  -- complVPV <|>
-  -- complVPV' <|>
+  complVTV <|>
+  complVPV <|>
+  complVPV'
   -- complVPV' <|>
   -- complVDisV <|>
   -- complVPDV <|>
   -- complVCopula
 
+-- | A complemented phrasal transitive verb: gives away a code
+complVPV =
+  ComplVPV <$> phrasalTransitiveV <*> phrasalParticle <*> compl
+
+-- | A complemented phrasal transitive verb, flipped: gives a code away
+complVPV' =
+  ComplVPV' <$> phrasalTransitiveV <*> compl <*> phrasalParticle
+
 -- | Complemented transitive verb: inserts a card
 complVTV =
   ComplVTV <$> transitiveV <*> compl
+
+phrasalTransitiveV =
+  PhrasalTransitiveV <$> join (fmap acePhrasalTransitiveV getState)
 
 -- | Complemented non-copula verb, e.g. Mary sees him.
 compl =

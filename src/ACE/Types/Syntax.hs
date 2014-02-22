@@ -231,11 +231,15 @@ data ComplV
   = ComplVIV !IntransitiveV
   | ComplVPI !PhrasalIntransitiveV !PhrasalParticle
   | ComplVTV !TransitiveV !Compl
-  | ComplVPV !PhrasalParticle !Compl
-  | ComplVPV' !Compl !PhrasalParticle
+  | ComplVPV !PhrasalTransitiveV !PhrasalParticle !Compl
+  | ComplVPV' !PhrasalTransitiveV !Compl !PhrasalParticle
   | ComplVDisV !Compl !Compl
   | ComplVPDV !Compl !PhrasalParticle !Compl
   | ComplVCopula !Copula !CopulaCompl
+  deriving (Show,Eq)
+
+data PhrasalTransitiveV =
+  PhrasalTransitiveV !Text
   deriving (Show,Eq)
 
 data CopulaCompl
