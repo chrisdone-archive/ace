@@ -72,6 +72,14 @@ parser =
      possessives
      specifiers
      verbs
+     adverbs
+
+adverbs =
+  do it "adverbialPP"
+        (parsed adverbialPP "<prep> <adverb> and <adverb>" ==
+         Right (AdverbialPP (Preposition "<prep>")
+                            (AdverbCoord (Adverb "<adverb>")
+                                         (Just (AdverbCoord (Adverb "<adverb>") Nothing)))))
 
 verbs =
   do -- An intransitive verb is OK: walks

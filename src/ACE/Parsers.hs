@@ -233,6 +233,8 @@ vModifier =
         vModifierAVPP =
           VModifierAVPP <$> adverbialPP
 
+-- | Adverbial prepositional phrase: until here, by then, until now
+-- and then
 adverbialPP =
   AdverbialPP
     <$> preposition
