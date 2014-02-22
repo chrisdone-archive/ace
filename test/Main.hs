@@ -143,6 +143,12 @@ parser =
      it "complVIV"
         (parsed complV "<intrans-verb>" ==
          Right (ComplVIV (IntransitiveV "<intrans-verb>")))
+     it "complVTV"
+        (parsed complV "<trans-verb> <prep> a <noun>" ==
+         Right (ComplVTV (TransitiveV "<trans-verb>")
+                         (ComplPP (PP (Preposition "<prep>")
+                                      (NPCoordUnmarked
+                                         (UnmarkedNPCoord anoun Nothing))))))
   where intransAdj = IntransitiveAdjective "<intrans-adj>"
         adverb = Adverb "<adverb>"
         anoun = (NP (SpecifyDeterminer A)
@@ -171,4 +177,5 @@ parsed p = tokenize >=> bimap show id . runP (p <* eof) config "<test>"
           , aceIntransitiveVerb      = string "<intrans-verb>"
           , acePhrasalParticle       = string "<pparticle>"
           , acePhrasalIntransitiveV  = string "<pintrans-verb>"
+          , aceTransitiveVerb        = string "<trans-verb>"
           }

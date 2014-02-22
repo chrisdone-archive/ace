@@ -29,6 +29,7 @@ data ACEParser s m = ACE
   , aceProperName            :: ParsecT s (ACEParser s m) m Text -- ^ Parser for proper names.
   , aceAdverb                :: ParsecT s (ACEParser s m) m Text -- ^ Parser for adverbs.
   , aceIntransitiveVerb      :: ParsecT s (ACEParser s m) m Text -- ^ Parser for intransitive verbs.
+  , aceTransitiveVerb        :: ParsecT s (ACEParser s m) m Text -- ^ Parser for transitive verbs.
   , acePhrasalParticle       :: ParsecT s (ACEParser s m) m Text -- ^ Parser for phrasal particles.
   , acePhrasalIntransitiveV  :: ParsecT s (ACEParser s m) m Text -- ^ Parser for phrasal intransitive verbs.
   }
@@ -46,6 +47,7 @@ defaultACEParser =
       , aceIntransitiveVerb      = string "<intrans-verb>"
       , acePhrasalParticle       = string "<pparticle>"
       , acePhrasalIntransitiveV  = string "<pintrans-verb>"
+      , aceTransitiveVerb        = string "<trans-verb>"
       }
 
 specification =
@@ -264,8 +266,8 @@ genitiveNPCoord =
 
 complV =
   complVIV <|>
-  complVPI -- <|>
-  -- complVTV <|>
+  complVPI <|>
+  complVTV
   -- complVPV <|>
   -- complVPV' <|>
   -- complVPV' <|>
@@ -273,7 +275,16 @@ complV =
   -- complVPDV <|>
   -- complVCopula
 
--- | An intransitive verb. Takes no complement. E.g. walks
+-- | Complemented transitive verb: inserts a card
+complVTV =
+  ComplVTV <$> transitiveV <*> compl
+
+-- | Complemented non-copula verb, e.g. Mary sees him.
+compl =
+  (ComplNP <$> npCoord) <|>
+  (ComplPP <$> pp)
+
+-- | An intransitive verb. Takes no complement. E.g. walks.
 complVIV =
   ComplVIV <$> intransitiveV
 
@@ -288,7 +299,7 @@ phrasalIntransitiveV =
   PhrasalIntransitiveV <$> join (fmap acePhrasalIntransitiveV getState)
 
 -- | A phrasal verb particle, e.g. in, up, out (get in, get up, get
--- out). This is customized via 'acePhrasalParticle').
+-- out). This is customized via 'acePhrasalParticle'.
 phrasalParticle =
   PhrasalParticle <$> join (fmap acePhrasalParticle getState)
 
@@ -323,9 +334,13 @@ ap =
   (APTrans <$> transitiveAdjective <*> pp) <|>
   (APIntrans <$> intransitiveAdjective)
 
--- | Some intransitive verb.
+-- | Some intransitive verb: walks
 intransitiveV =
   IntransitiveV <$> join (fmap aceIntransitiveVerb getState)
+
+-- | Some transitive verb: inserts
+transitiveV =
+  TransitiveV <$> join (fmap aceTransitiveVerb getState)
 
 -- | Adverb coordination: quickly and hastily and manually
 adverbCoord =

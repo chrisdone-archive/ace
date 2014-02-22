@@ -263,8 +263,9 @@ data TransitiveAdjective =
   TransitiveAdjective !Text
   deriving (Show,Eq)
 
-data Compl =
-  Compl !NPCoord !PP
+data Compl
+  = ComplNP !NPCoord
+  | ComplPP !PP
   deriving (Show,Eq)
 
 data PhrasalIntransitiveV =
