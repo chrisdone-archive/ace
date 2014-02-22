@@ -29,7 +29,7 @@ data ACEParser s m = ACE
   , aceProperName            :: ParsecT s (ACEParser s m) m Text -- ^ Parser for proper names.
   , aceAdverb                :: ParsecT s (ACEParser s m) m Text -- ^ Parser for adverbs.
   , aceIntransitiveVerb      :: ParsecT s (ACEParser s m) m Text -- ^ Parser for intransitive verbs.
-  , acePhrasalTransitiveV     :: ParsecT s (ACEParser s m) m Text -- ^ Parser for phrasal transitive verbs.
+  , acePhrasalTransitiveV    :: ParsecT s (ACEParser s m) m Text -- ^ Parser for phrasal transitive verbs.
   , aceTransitiveVerb        :: ParsecT s (ACEParser s m) m Text -- ^ Parser for transitive verbs.
   , aceDistransitiveVerb     :: ParsecT s (ACEParser s m) m Text -- ^ Parser for distransitive verbs.
   , acePhrasalParticle       :: ParsecT s (ACEParser s m) m Text -- ^ Parser for phrasal particles.
