@@ -73,6 +73,22 @@ parser =
      specifiers
      verbs
      adverbs
+     verbModifiers
+
+verbModifiers =
+  do it "vModifier"
+        (parsed vModifier "<adverb> and <adverb>" ==
+         Right (VModifierVC (AdverbCoord (Adverb "<adverb>") (Just (AdverbCoord (Adverb "<adverb>") Nothing)))))
+     it "vModifier"
+        (parsed vModifier "<prep> a <noun>" ==
+         Right (VModifierPP (PP (Preposition "<prep>")
+                                (NPCoordUnmarked (UnmarkedNPCoord anoun Nothing)))))
+     it "vModifier"
+        (parsed vModifier "<prep> <adverb> and <adverb>" ==
+         Right (VModifierAVPP
+                  (AdverbialPP (Preposition "<prep>")
+                               (AdverbCoord (Adverb "<adverb>")
+                                            (Just (AdverbCoord (Adverb "<adverb>") Nothing))))))
 
 adverbs =
   do it "adverbialPP"

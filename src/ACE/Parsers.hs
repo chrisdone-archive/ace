@@ -215,17 +215,18 @@ vpCoord =
       (VPCoordVP
          <$> pure vp'))
 
+vp =
+  VP <$> v'
+
 genitiveN' =
   GenitiveN'
     <$> optional (try adjectiveCoord)
     <*> n
     <*> optional (try apposCoord)
 
-vp =
-  VP <$> v'
-
+-- | A verb modifier: quickly and loudly, to a house, from now and forever
 vModifier =
-  vModifierVC <|> vModifierPP <|> vModifierAVPP
+  vModifierVC <|> try vModifierPP <|> vModifierAVPP
   where vModifierVC =
           VModifierVC <$> adverbCoord
         vModifierPP =
