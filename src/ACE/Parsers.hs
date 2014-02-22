@@ -294,12 +294,13 @@ copulaCompl =
         copulaComplNPC = CopulaComplNPC <$> npCoord
         copulaComplPP  = CopulaComplPP  <$> pp
 
+-- | A coordination of a graded adjective: \"better than a potato and nicer than some bacon\"
 apCoord = apCoordAnd <|> apCoord'
   where apCoordAnd = APCoordAnd <$> try (apGrad <* string "and") <*> apCoord
         apCoord' = APCoord <$> apGrad
 
--- | A graded adjective. Either comparative adjective phrase ("better
--- than a potato"), or a simple adjective phrase (see 'ap').
+-- | A graded adjective. Either comparative adjective phrase (\"better
+-- than a potato\"), or a simple adjective phrase (see 'ap').
 apGrad = apGradThan <|> apGrad'
   where apGradThan = APgradAPThan <$> try (ap <* string "than") <*> npCoord
         apGrad' = APgradAP <$> ap
