@@ -279,14 +279,16 @@ complVIV =
 complVPI =
   ComplVPI <$> phrasalIntransitiveV <*> phrasalParticle
 
-phrasalParticle =
-  PhrasalParticle <$> join (fmap acePhrasalParticle getState)
-
 -- | A phrasal intransitive verb: gets, gives, puts (e.g. gets up,
 -- gives up, puts up). This is customized by
 -- 'acePhrasalIntransitiveV'.
 phrasalIntransitiveV =
   PhrasalIntransitiveV <$> join (fmap acePhrasalIntransitiveV getState)
+
+-- | A phrasal verb particle, e.g. in, up, out (get in, get up, get
+-- out). This is customized via 'acePhrasalParticle').
+phrasalParticle =
+  PhrasalParticle <$> join (fmap acePhrasalParticle getState)
 
 --  | Either a graded adjective coordination (\"better than a duck and
 --  faster than a mouse\"), or a noun phrase coordination (\"a goose
