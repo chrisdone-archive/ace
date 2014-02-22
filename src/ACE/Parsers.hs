@@ -218,6 +218,8 @@ vpCoord =
 vp =
   VP <$> v'
 
+-- | A genitive noun: dog, red cat, person 1, movie \"We Need to Talk
+-- About Kevin\".
 genitiveN' =
   GenitiveN'
     <$> optional (try adjectiveCoord)

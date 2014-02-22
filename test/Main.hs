@@ -74,6 +74,21 @@ parser =
      verbs
      adverbs
      verbModifiers
+     nouns
+
+nouns =
+  do it "genitiveN'"
+        (parsed genitiveN' "<noun> <var>" ==
+         Right (GenitiveN' Nothing (N "<noun>")
+                           (Just (ApposCoord (AppositionVar (Variable "<var>")) Nothing))))
+     it "genitiveN'"
+        (parsed genitiveN' "<intrans-adj> and <intrans-adj> <noun> <var>" ==
+         Right (GenitiveN' (Just (AdjectiveCoord
+                                    (IntransitiveAdjective "<intrans-adj>")
+                                    (Just (AdjectiveCoord (IntransitiveAdjective "<intrans-adj>")
+                                                          Nothing))))
+                           (N "<noun>")
+                           (Just (ApposCoord (AppositionVar (Variable "<var>")) Nothing))))
 
 verbModifiers =
   do it "vModifier"
