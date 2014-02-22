@@ -19,7 +19,7 @@ data Token
   | QuestionMark !(Int,Int)
   | Genitive !(Int,Int) !Bool
   | Number !(Int,Int) !Integer
-  deriving (Show,Eq)
+  deriving (Eq)
 
 -- | Get the position of the token.
 tokenPos :: Token -> (Int, Int)

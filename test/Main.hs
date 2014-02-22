@@ -19,7 +19,8 @@ import Data.Bifunctor
 import Data.Text (Text)
 import Test.HUnit
 import Test.Hspec
-import Text.Parsec (Stream,ParsecT,runP,try,Parsec,eof)
+import Text.Parsec (Stream,ParsecT,runP,try,Parsec,ParseError)
+import Text.Parsec.Prim
 
 -- | Test suite entry point, returns exit failure if any test fails.
 main :: IO ()
@@ -229,3 +230,10 @@ isLeft = either (const True) (const False)
 -- | Get the parsed result after tokenizing.
 parsed :: Parsec [Token] (ACEParser [Token] Identity) c -> Text -> Either String c
 parsed p = tokenize >=> bimap show id . runP (p <* eof) defaultACEParser "<test>"
+
+-- | Test a parser.
+testp :: Show a => Parsec [Token] (ACEParser [Token] Identity) a -> Text -> IO ()
+testp p i =
+  case parsed p i  of
+    Left e -> putStrLn e
+    Right p -> print p

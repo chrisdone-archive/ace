@@ -190,11 +190,6 @@ relativeClauseCoord =
 properName =
   ProperName <$> join (fmap aceProperName getState)
 
-possessivePronounCoord =
-  PossessivePronounCoord
-    <$> possessivePronoun
-    <*> optional (try (string "and" *> possessivePronounCoord))
-
 genitiveTail =
   (GenitiveTailSaxonTail <$> saxonGenitiveTail) <|>
   (GenitiveTailCoordtail <$> genitiveCoordTail)
@@ -257,8 +252,15 @@ adverbialPP =
     <$> preposition
     <*> adverbCoord
 
+-- | Either a 'genitiveNPCoord', or a 'possessivePronounCoord'.
 possessiveNPCoord =
-  PossessiveNPCoordGen <$> genitiveNPCoord
+  (PossessiveNPCoordGen <$> genitiveNPCoord) <|>
+  (PossessiveNPCoordPronoun <$> possessivePronounCoord)
+
+possessivePronounCoord =
+  PossessivePronounCoord
+    <$> possessivePronoun
+    <*> optional (try (string "and" *> possessivePronounCoord))
 
 -- | A genitive noun phrase coordination: dave's, a dog's, a man and a dog's
 genitiveNPCoord =
