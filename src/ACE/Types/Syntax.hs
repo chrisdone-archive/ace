@@ -215,8 +215,9 @@ data GenitiveN' =
              !(Maybe ApposCoord)
   deriving (Show,Eq)
 
-data VP =
-  VP !V'
+data VP
+  = VP !V'
+  | VPNeg !Copula !V'
   deriving (Show,Eq)
 
 data V' =

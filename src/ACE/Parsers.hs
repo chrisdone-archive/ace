@@ -215,8 +215,11 @@ vpCoord =
       (VPCoordVP
          <$> pure vp'))
 
+-- | A verb phrase. Can be normal 'v'' or a 'copula' followed by
+-- \"not\" then 'v'': walks, is not valid, etc.
 vp =
-  VP <$> v'
+  try (VP <$> v') <|>
+  (VPNeg <$> (copula <* string "not") <*> v')
 
 -- | A genitive noun: dog, red cat, person 1, movie \"We Need to Talk
 -- About Kevin\".

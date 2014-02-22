@@ -135,6 +135,12 @@ verbs =
                              (ComplPP (PP (Preposition "<prep>")
                                           (NPCoordUnmarked (UnmarkedNPCoord anoun Nothing)))))
                    [VModifierVC (AdverbCoord (Adverb "<adverb>") Nothing)]))
+     it "vp"
+        (parsed vp "<intrans-verb>" ==
+         Right (VP (V' Nothing (ComplVIV (IntransitiveV "<intrans-verb>")) [])))
+     it "vp"
+        (parsed vp "is not <intrans-verb>" ==
+         Right (VPNeg Is (V' Nothing (ComplVIV (IntransitiveV "<intrans-verb>")) [])))
 
 specifiers =
   do it "genitiveSpecifier"
