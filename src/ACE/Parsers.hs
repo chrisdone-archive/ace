@@ -119,13 +119,6 @@ existentialTopic =
   ExistentialTopic <$> existentialGlobalQuantor
                    <*> npCoord
 
-npCoord =
-  distributed <|> unmarked
-  where distributed =
-          NPCoordDistributed <$> distributiveMarker <*> unmarkedNPCoord
-        unmarked =
-          NPCoordUnmarked <$> unmarkedNPCoord
-
 unmarkedNPCoord =
   UnmarkedNPCoord
     <$> np
@@ -153,9 +146,6 @@ n' =
      <*> optional (try ofPP)
      <*> optional (try relativeClauseCoord)
 
-n =
-  N <$> join (fmap aceNoun getState)
-
 ofPP =
   string "of" *> npCoord
 
@@ -175,20 +165,11 @@ apposition =
   (AppositionVar <$> variable) <|>
   (AppositionQuote <$> quotation)
 
-variable =
-  Variable <$> join (fmap aceVariable getState)
-
-quotation =
-  Quotation <$> quoted
-
 relativeClauseCoord =
   RelativeClauseCoord
     <$> relativeClause
     <*> optional (try ((,) <$> coord
                            <*> relativeClauseCoord))
-
-properName =
-  ProperName <$> join (fmap aceProperName getState)
 
 genitiveTail =
   (GenitiveTailSaxonTail <$> saxonGenitiveTail) <|>
@@ -205,6 +186,30 @@ saxonGenitiveTail =
 
 relativeClause =
   RelativeClause <$> vpCoord
+
+-- | A coordinated noun phrase: each of some customers, some customers
+npCoord =
+  distributed <|> unmarked
+  where distributed =
+          NPCoordDistributed <$> distributiveMarker <*> unmarkedNPCoord
+        unmarked =
+          NPCoordUnmarked <$> unmarkedNPCoord
+
+-- | A variable. Customized by 'aceVariable'.
+variable =
+  Variable <$> join (fmap aceVariable getState)
+
+-- | A proper name. Customized by 'aceProperName'.
+properName =
+  ProperName <$> join (fmap aceProperName getState)
+
+-- | Some quotation: \"foo bar\"
+quotation =
+  Quotation <$> quoted
+
+-- | A noun. Customized by 'aceNoun'.
+n =
+  N <$> join (fmap aceNoun getState)
 
 -- | A verb phrase coordination is either a 'vp' followed by a 'coord'
 -- and more 'vpCoord', or just a 'vp': walks, walks and runs, bad and

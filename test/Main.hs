@@ -89,6 +89,19 @@ nouns =
                                                           Nothing))))
                            (N "<noun>")
                            (Just (ApposCoord (AppositionVar (Variable "<var>")) Nothing))))
+     it "npCoord"
+        (parsed npCoord "each of some <noun>" ==
+         Right (NPCoordDistributed
+                  EachOf
+                  (UnmarkedNPCoord (NP (SpecifyDeterminer Some)
+                                       (N' Nothing (N "<noun>") Nothing Nothing Nothing))
+                                   Nothing)))
+     it "npCoord"
+        (parsed npCoord "some <noun>" ==
+         Right (NPCoordUnmarked
+                  (UnmarkedNPCoord (NP (SpecifyDeterminer Some)
+                                       (N' Nothing (N "<noun>") Nothing Nothing Nothing))
+                                   Nothing)))
 
 verbModifiers =
   do it "vModifier"
