@@ -71,6 +71,31 @@ parser =
      genitiveNP
      possessives
      specifiers
+     verbs
+
+verbs =
+  do -- An intransitive verb is OK: walks
+     it "v'"
+        (parsed v' "<intrans-verb>" ==
+         Right (V' Nothing (ComplVIV (IntransitiveV "<intrans-verb>")) []))
+     -- A transitive verb must take a preposition and a noun phrase.
+     it "v'"
+        (parsed v' "<trans-verb> <prep> a <noun>" ==
+         Right (V' Nothing
+                   (ComplVTV (TransitiveV "<trans-verb>")
+                             (ComplPP (PP (Preposition "<prep>")
+                                          (NPCoordUnmarked (UnmarkedNPCoord anoun Nothing)))))
+                   []))
+     -- A phrasal transitive verb with adverbs on both sides, e.g.
+     -- quickly walks up to a chair hastily
+     it "v'"
+        (parsed v' "<adverb> <ptrans-verb> <pparticle> <prep> a <noun> <adverb>" ==
+         Right (V' (Just (AdverbCoord (Adverb "<adverb>") Nothing))
+                   (ComplVPV (PhrasalTransitiveV "<ptrans-verb>")
+                             (PhrasalParticle "<pparticle>")
+                             (ComplPP (PP (Preposition "<prep>")
+                                          (NPCoordUnmarked (UnmarkedNPCoord anoun Nothing)))))
+                   [VModifierVC (AdverbCoord (Adverb "<adverb>") Nothing)]))
 
 specifiers =
   do it "genitiveSpecifier"

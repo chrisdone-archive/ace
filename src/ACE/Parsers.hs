@@ -224,11 +224,6 @@ genitiveN' =
 vp =
   VP <$> v'
 
-v' =
-  V' <$> optional (try adverbCoord)
-     <*> complV
-     <*> many vModifier
-
 vModifier =
   vModifierVC <|> vModifierPP <|> vModifierAVPP
   where vModifierVC =
@@ -242,6 +237,16 @@ adverbialPP =
   AdverbialPP
     <$> preposition
     <*> adverbCoord
+
+-- | A verb. Consists of an optional 'adverbCoord', a complemented
+-- verb ('complV'), and one or more verb modifiers.
+--
+-- TODO: I'm not actually sure whether it should be zero-to-1 or
+-- zero-to-many. The paper isn't clear what VModifier* means.
+v' =
+  V' <$> optional (try adverbCoord)
+     <*> complV
+     <*> many (try vModifier)
 
 -- | Genitive specifier: a, 1, some, his
 genitiveSpecifier =
