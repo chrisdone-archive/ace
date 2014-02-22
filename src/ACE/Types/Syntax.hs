@@ -233,7 +233,7 @@ data ComplV
   | ComplVTV !TransitiveV !Compl
   | ComplVPV !PhrasalTransitiveV !PhrasalParticle !Compl
   | ComplVPV' !PhrasalTransitiveV !Compl !PhrasalParticle
-  | ComplVDisV !Compl !Compl
+  | ComplVDisV !DistransitiveV !Compl !Compl
   | ComplVPDV !Compl !PhrasalParticle !Compl
   | ComplVCopula !Copula !CopulaCompl
   deriving (Show,Eq)
@@ -286,6 +286,10 @@ data IntransitiveV =
 
 data TransitiveV =
   TransitiveV !Text
+  deriving (Show,Eq)
+
+data DistransitiveV =
+  DistransitiveV !Text
   deriving (Show,Eq)
 
 data IntransitiveAdjective =

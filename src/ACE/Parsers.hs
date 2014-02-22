@@ -31,6 +31,7 @@ data ACEParser s m = ACE
   , aceIntransitiveVerb      :: ParsecT s (ACEParser s m) m Text -- ^ Parser for intransitive verbs.
   , acePhrasalTransitiveV     :: ParsecT s (ACEParser s m) m Text -- ^ Parser for phrasal transitive verbs.
   , aceTransitiveVerb        :: ParsecT s (ACEParser s m) m Text -- ^ Parser for transitive verbs.
+  , aceDistransitiveVerb     :: ParsecT s (ACEParser s m) m Text -- ^ Parser for distransitive verbs.
   , acePhrasalParticle       :: ParsecT s (ACEParser s m) m Text -- ^ Parser for phrasal particles.
   , acePhrasalIntransitiveV  :: ParsecT s (ACEParser s m) m Text -- ^ Parser for phrasal intransitive verbs.
   }
@@ -46,6 +47,7 @@ defaultACEParser =
       , aceProperName            = string "<proper-name>"
       , aceAdverb                = string "<adverb>"
       , aceIntransitiveVerb      = string "<intrans-verb>"
+      , aceDistransitiveVerb     = string "<distrans-verb>"
       , acePhrasalParticle       = string "<pparticle>"
       , acePhrasalIntransitiveV  = string "<pintrans-verb>"
       , aceTransitiveVerb        = string "<trans-verb>"
@@ -271,11 +273,13 @@ complV =
   complVPI <|>
   complVTV <|>
   complVPV <|>
-  complVPV'
-  -- complVPV' <|>
-  -- complVDisV <|>
+  complVPV' <|>
+  complVDisV
   -- complVPDV <|>
   -- complVCopula
+
+complVDisV =
+  ComplVDisV <$> distransitiveV <*> compl <*> compl
 
 -- | A complemented phrasal transitive verb: gives away a code
 complVPV =
@@ -354,6 +358,10 @@ intransitiveV =
 -- | Some transitive verb: inserts
 transitiveV =
   TransitiveV <$> join (fmap aceTransitiveVerb getState)
+
+-- | Some distransitive verb: inserts
+distransitiveV =
+  DistransitiveV <$> join (fmap aceDistransitiveVerb getState)
 
 -- | Adverb coordination: quickly and hastily and manually
 adverbCoord =

@@ -154,7 +154,8 @@ simple =
 complVs =
   do it "complVPI"
         (parsed complV "<pintrans-verb> <pparticle>" ==
-         Right (ComplVPI (PhrasalIntransitiveV "<pintrans-verb>") (PhrasalParticle "<pparticle>")))
+         Right (ComplVPI (PhrasalIntransitiveV "<pintrans-verb>")
+                         (PhrasalParticle "<pparticle>")))
      it "complVIV"
         (parsed complV "<intrans-verb>" ==
          Right (ComplVIV (IntransitiveV "<intrans-verb>")))
@@ -170,6 +171,11 @@ complVs =
                          (PhrasalParticle "<pparticle>")
                          (ComplNP (NPCoordUnmarked
                                      (UnmarkedNPCoord anoun Nothing)))))
+     it "complVDisV"
+        (parsed complV "<distrans-verb> a <noun> a <noun>" ==
+         Right (ComplVDisV (DistransitiveV "<distrans-verb>")
+                           (ComplNP (NPCoordUnmarked (UnmarkedNPCoord anoun Nothing)))
+                           (ComplNP (NPCoordUnmarked (UnmarkedNPCoord anoun Nothing)))))
 
 intransAdj = IntransitiveAdjective "<intrans-adj>"
 
@@ -188,19 +194,4 @@ isLeft = either (const True) (const False)
 
 -- | Get the parsed result after tokenizing.
 parsed :: Parsec [Token] (ACEParser [Token] Identity) c -> Text -> Either String c
-parsed p = tokenize >=> bimap show id . runP (p <* eof) config "<test>"
-  where
-    config =
-      ACE { aceIntransitiveAdjective = string "<intrans-adj>"
-          , aceTransitiveAdjective   = string "<trans-adj>"
-          , aceNoun                  = string "<noun>"
-          , acePreposition           = string "<prep>"
-          , aceVariable              = string "<var>"
-          , aceProperName            = string "<proper-name>"
-          , aceAdverb                = string "<adverb>"
-          , aceIntransitiveVerb      = string "<intrans-verb>"
-          , acePhrasalParticle       = string "<pparticle>"
-          , acePhrasalIntransitiveV  = string "<pintrans-verb>"
-          , aceTransitiveVerb        = string "<trans-verb>"
-          , acePhrasalTransitiveV    = string "<ptrans-verb>"
-          }
+parsed p = tokenize >=> bimap show id . runP (p <* eof) defaultACEParser "<test>"
