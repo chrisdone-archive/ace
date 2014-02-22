@@ -254,7 +254,7 @@ adverbialPP =
 
 -- | Either a 'genitiveNPCoord', or a 'possessivePronounCoord'.
 possessiveNPCoord =
-  (PossessiveNPCoordGen <$> genitiveNPCoord) <|>
+  try (PossessiveNPCoordGen <$> genitiveNPCoord) <|>
   (PossessiveNPCoordPronoun <$> possessivePronounCoord)
 
 -- | Possessive pronoun coordination: his and her

@@ -78,6 +78,15 @@ possessives =
      it "possessivePronounCoord"
         (parsed possessivePronounCoord "its" ==
          Right (PossessivePronounCoord Its Nothing))
+     it "possessiveNPCoord"
+        (parsed possessiveNPCoord "his and her" ==
+         Right (PossessiveNPCoordPronoun (PossessivePronounCoord HisHer (Just (PossessivePronounCoord HisHer Nothing)))))
+     it "possessiveNPCoord"
+        (parsed possessiveNPCoord "a <noun>'s" ==
+         Right (PossessiveNPCoordGen
+                  (GenitiveNPCoord (GenitiveSpecifierD A)
+                                   (GenitiveN' Nothing (N "<noun>") Nothing)
+                                   (GenitiveTailSaxonTail (SaxonGenitiveTail ApostropheS Nothing)))))
 
 genitiveNP =
   do it "genitiveNPCoord"
