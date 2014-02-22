@@ -113,6 +113,12 @@ parser =
         (parsed apGrad "<intrans-adj> than a <noun>" ==
          Right (APgradAPThan (APIntrans intransAdj)
                              (NPCoordUnmarked (UnmarkedNPCoord anoun Nothing))))
+     it "apCoord"
+        (parsed apCoord "<intrans-adj> than a <noun> and <intrans-adj> than a <noun>" ==
+         Right (APCoordAnd (APgradAPThan (APIntrans intransAdj)
+                                         (NPCoordUnmarked (UnmarkedNPCoord anoun Nothing)))
+                           (APCoord (APgradAPThan (APIntrans intransAdj)
+                                                  (NPCoordUnmarked (UnmarkedNPCoord anoun Nothing))))))
   where intransAdj = IntransitiveAdjective "<intrans-adj>"
         adverb = Adverb "<adverb>"
         anoun = (NP (SpecifyDeterminer A)

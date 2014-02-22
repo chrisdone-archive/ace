@@ -56,25 +56,25 @@ specification =
 sentenceCoord =
   SentenceCoord
     <$> sentenceCoord_1
-    <*> optional (string "or" *> sentenceCoord)
+    <*> optional (try (string "or" *> sentenceCoord))
 
 sentenceCoord_1 =
   SentenceCoord_1
     <$> sentenceCoord_2
-    <*> optional (comma *> string "and" *> sentenceCoord_1)
+    <*> optional (try (comma *> string "and" *> sentenceCoord_1))
 
 sentenceCoord_2 =
   SentenceCoord_2
     <$> sentenceCoord_3
-    <*> optional (string "or" *> sentenceCoord_2)
+    <*> optional (try (string "or" *> sentenceCoord_2))
 
 sentenceCoord_3 =
   SentenceCoord_3
     <$> topicalizedSentence
-    <*> optional (string "and" *> sentenceCoord_3)
+    <*> optional (try (string "and" *> sentenceCoord_3))
 
 topicalizedSentence =
-  (TopicalizedSentenceExistential <$> existentialTopic <*> optional sentenceCoord) <|>
+  (TopicalizedSentenceExistential <$> existentialTopic <*> optional (try sentenceCoord)) <|>
   (TopicalizedSentenceUniversal <$> universalTopic <*> sentenceCoord) <|>
   (TopicalizedSentenceComposite <$> compositeSentence)
 
@@ -122,7 +122,7 @@ npCoord =
 unmarkedNPCoord =
   UnmarkedNPCoord
     <$> np
-    <*> optional (string "and" *> unmarkedNPCoord)
+    <*> optional (try (string "and" *> unmarkedNPCoord))
 
 np =
   NP <$> specifier
@@ -140,11 +140,11 @@ specifier =
           SpecifyNumberP <$> numberP
 
 n' =
-  N' <$> optional adjectiveCoord
+  N' <$> optional (try adjectiveCoord)
      <*> n
-     <*> optional apposCoord
-     <*> optional pp
-     <*> optional relativeClauseCoord
+     <*> optional (try apposCoord)
+     <*> optional (try pp)
+     <*> optional (try relativeClauseCoord)
 
 n =
   N <$> join (fmap aceNoun getState)
@@ -159,7 +159,7 @@ preposition =
 apposCoord =
   ApposCoord
     <$> apposition
-    <*> optional (string "and" *> apposCoord)
+    <*> optional (try (string "and" *> apposCoord))
 
 apposition =
   (AppositionVar <$> variable) <|>
@@ -174,8 +174,8 @@ quotation =
 relativeClauseCoord =
   RelativeClauseCoord
     <$> relativeClause
-    <*> optional ((,) <$> coord
-                      <*> relativeClauseCoord)
+    <*> optional (try ((,) <$> coord
+                           <*> relativeClauseCoord))
 
 properName =
   ProperName <$> join (fmap aceProperName getState)
@@ -183,7 +183,7 @@ properName =
 possessivePronounCoord =
   PossessivePronounCoord
     <$> possessivePronoun
-    <*> optional (string "and" *> possessivePronounCoord)
+    <*> optional (try (string "and" *> possessivePronounCoord))
 
 genitiveTail =
   (GenitiveTailSaxonTail <$> saxonGenitiveTail) <|>
@@ -195,8 +195,8 @@ genitiveCoordTail =
 saxonGenitiveTail =
   SaxonGenitiveTail
     <$> saxonGenitiveMarker
-    <*> optional ((,) <$> genitiveN'
-                      <*> saxonGenitiveTail)
+    <*> optional (try ((,) <$> genitiveN'
+                           <*> saxonGenitiveTail))
 
 saxonGenitiveMarker =
   fmap (\s -> if s then ApostropheS else Apostrophe)
@@ -221,15 +221,15 @@ genitiveSpecifier =
 
 genitiveN' =
   GenitiveN'
-    <$> optional adjectiveCoord
+    <$> optional (try adjectiveCoord)
     <*> n
-    <*> optional apposCoord
+    <*> optional (try apposCoord)
 
 vp =
   VP <$> v'
 
 v' =
-  V' <$> optional adverbCoord
+  V' <$> optional (try adverbCoord)
      <*> complV
      <*> many vModifier
 
@@ -317,7 +317,7 @@ intransitiveV =
 -- | Adverb coordination: quickly and hastily and manually
 adverbCoord =
   AdverbCoord <$> adverb
-              <*> optional (string "and" *> adverbCoord)
+              <*> optional (try (string "and" *> adverbCoord))
 
 -- | Adverb: quickly
 adverb =
@@ -327,7 +327,7 @@ adverb =
 adjectiveCoord =
   AdjectiveCoord
     <$> intransitiveAdjective
-    <*> optional (string "and" *> adjectiveCoord)
+    <*> optional (try (string "and" *> adjectiveCoord))
 
 -- | Intransitive adjective: correct, green, valid
 --
@@ -359,7 +359,7 @@ determiner =
 -- | A number phrase: more than 5
 numberP =
   NumberP
-    <$> optional generalizedQuantor
+    <$> optional (try generalizedQuantor)
     <*> number
 
 -- | There is/are.
