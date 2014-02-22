@@ -69,6 +69,15 @@ parser =
      copulae
      complVs
      genitiveNP
+     possessives
+
+possessives =
+  do it "possessivePronounCoord"
+        (parsed possessivePronounCoord "his and her" ==
+         Right (PossessivePronounCoord HisHer (Just (PossessivePronounCoord HisHer Nothing))))
+     it "possessivePronounCoord"
+        (parsed possessivePronounCoord "its" ==
+         Right (PossessivePronounCoord Its Nothing))
 
 genitiveNP =
   do it "genitiveNPCoord"

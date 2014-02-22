@@ -257,6 +257,7 @@ possessiveNPCoord =
   (PossessiveNPCoordGen <$> genitiveNPCoord) <|>
   (PossessiveNPCoordPronoun <$> possessivePronounCoord)
 
+-- | Possessive pronoun coordination: his and her
 possessivePronounCoord =
   PossessivePronounCoord
     <$> possessivePronoun
