@@ -234,12 +234,16 @@ data ComplV
   | ComplVPV !PhrasalTransitiveV !PhrasalParticle !Compl
   | ComplVPV' !PhrasalTransitiveV !Compl !PhrasalParticle
   | ComplVDisV !DistransitiveV !Compl !Compl
-  | ComplVPDV !Compl !PhrasalParticle !Compl
+  | ComplVPDV !PhrasalDistransitiveV !Compl !PhrasalParticle !Compl
   | ComplVCopula !Copula !CopulaCompl
   deriving (Show,Eq)
 
 data PhrasalTransitiveV =
   PhrasalTransitiveV !Text
+  deriving (Show,Eq)
+
+data PhrasalDistransitiveV =
+  PhrasalDistransitiveV !Text
   deriving (Show,Eq)
 
 data CopulaCompl

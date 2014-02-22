@@ -177,6 +177,12 @@ complVs =
                            (ComplNP (NPCoordUnmarked (UnmarkedNPCoord anoun Nothing)))
                            (ComplPP (PP (Preposition "<prep>")
                                         (NPCoordUnmarked (UnmarkedNPCoord anoun Nothing))))))
+     it "complVPDV"
+        (parsed complVPDV "<pdistrans-verb> a <noun> <pparticle> a <noun>" ==
+         Right (ComplVPDV (PhrasalDistransitiveV "<pdistrans-verb>")
+                          (ComplNP (NPCoordUnmarked (UnmarkedNPCoord anoun Nothing)))
+                          (PhrasalParticle "<pparticle>")
+                          (ComplNP (NPCoordUnmarked (UnmarkedNPCoord anoun Nothing)))))
 
 intransAdj = IntransitiveAdjective "<intrans-adj>"
 

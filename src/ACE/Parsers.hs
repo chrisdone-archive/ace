@@ -30,6 +30,7 @@ data ACEParser s m = ACE
   , aceAdverb                :: ParsecT s (ACEParser s m) m Text -- ^ Parser for adverbs.
   , aceIntransitiveVerb      :: ParsecT s (ACEParser s m) m Text -- ^ Parser for intransitive verbs.
   , acePhrasalTransitiveV    :: ParsecT s (ACEParser s m) m Text -- ^ Parser for phrasal transitive verbs.
+  , acePhrasalDistransitiveV :: ParsecT s (ACEParser s m) m Text -- ^ Parser for phrasal distransitive verbs.
   , aceTransitiveVerb        :: ParsecT s (ACEParser s m) m Text -- ^ Parser for transitive verbs.
   , aceDistransitiveVerb     :: ParsecT s (ACEParser s m) m Text -- ^ Parser for distransitive verbs.
   , acePhrasalParticle       :: ParsecT s (ACEParser s m) m Text -- ^ Parser for phrasal particles.
@@ -39,19 +40,20 @@ data ACEParser s m = ACE
 -- | A default ACE parser configuration. Just fills in all the parsers as blanks: @<noun>@, @<prep>@, etc.
 defaultACEParser :: Stream s m Token => ACEParser s m
 defaultACEParser =
-  ACE { aceIntransitiveAdjective = string "<intrans-adj>"
-      , aceTransitiveAdjective   = string "<trans-adj>"
-      , aceNoun                  = string "<noun>"
-      , acePreposition           = string "<prep>"
-      , aceVariable              = string "<var>"
-      , aceProperName            = string "<proper-name>"
-      , aceAdverb                = string "<adverb>"
-      , aceIntransitiveVerb      = string "<intrans-verb>"
-      , aceDistransitiveVerb     = string "<distrans-verb>"
-      , acePhrasalParticle       = string "<pparticle>"
-      , acePhrasalIntransitiveV  = string "<pintrans-verb>"
-      , aceTransitiveVerb        = string "<trans-verb>"
-      , acePhrasalTransitiveV    = string "<ptrans-verb>"
+  ACE { aceIntransitiveAdjective   = string "<intrans-adj>"
+      , aceTransitiveAdjective     = string "<trans-adj>"
+      , aceNoun                    = string "<noun>"
+      , acePreposition             = string "<prep>"
+      , aceVariable                = string "<var>"
+      , aceProperName              = string "<proper-name>"
+      , aceAdverb                  = string "<adverb>"
+      , aceIntransitiveVerb        = string "<intrans-verb>"
+      , aceDistransitiveVerb       = string "<distrans-verb>"
+      , acePhrasalParticle         = string "<pparticle>"
+      , acePhrasalIntransitiveV    = string "<pintrans-verb>"
+      , acePhrasalDistransitiveV   = string "<pdistrans-verb>"
+      , aceTransitiveVerb          = string "<trans-verb>"
+      , acePhrasalTransitiveV      = string "<ptrans-verb>"
       }
 
 specification =
@@ -277,9 +279,12 @@ complV =
   complVTV <|>
   complVPV <|>
   complVPV' <|>
-  complVDisV
-  -- complVPDV <|>
+  complVDisV <|>
+  complVPDV
   -- complVCopula
+
+complVPDV =
+  ComplVPDV <$> phrasalDistransitiveV <*> compl <*> phrasalParticle <*> compl
 
 -- | A distransitive complemented verb: gives a card to a customer
 complVDisV =
@@ -297,6 +302,11 @@ complVPV' =
 complVTV =
   ComplVTV <$> transitiveV <*> compl
 
+-- | A phrasal distransitive verb: puts an error down to a customer
+phrasalDistransitiveV =
+  PhrasalDistransitiveV <$> join (fmap acePhrasalDistransitiveV getState)
+
+-- | A phrasal transitive verb: give away a thing
 phrasalTransitiveV =
   PhrasalTransitiveV <$> join (fmap acePhrasalTransitiveV getState)
 
