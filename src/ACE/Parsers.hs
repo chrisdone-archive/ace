@@ -280,9 +280,14 @@ complV =
   complVPV <|>
   complVPV' <|>
   complVDisV <|>
-  complVPDV
-  -- complVCopula
+  complVPDV <|>
+  complVCopula
 
+-- | A complemented copula: is valid
+complVCopula =
+  ComplVCopula <$> copula <*> copulaCompl
+
+-- | A distransitive phrasal verb: puts an error down to a customer
 complVPDV =
   ComplVPDV <$> phrasalDistransitiveV <*> compl <*> phrasalParticle <*> compl
 
