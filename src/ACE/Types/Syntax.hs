@@ -119,7 +119,7 @@ data N' =
   N' !(Maybe AdjectiveCoord)
      !N
      !(Maybe ApposCoord)
-     !(Maybe PP)
+     !(Maybe NPCoord)
      !(Maybe RelativeClauseCoord)
   deriving (Show,Eq)
 

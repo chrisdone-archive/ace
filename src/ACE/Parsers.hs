@@ -149,11 +149,14 @@ n' =
   N' <$> optional (try adjectiveCoord)
      <*> n
      <*> optional (try apposCoord)
-     <*> optional (try pp)
+     <*> optional (try ofPP)
      <*> optional (try relativeClauseCoord)
 
 n =
   N <$> join (fmap aceNoun getState)
+
+ofPP =
+  string "of" *> npCoord
 
 pp =
   PP <$> preposition
@@ -196,7 +199,7 @@ genitiveTail =
   (GenitiveTailCoordtail <$> genitiveCoordTail)
 
 genitiveCoordTail =
-  GenitiveCoordTail <$> (string "and" *> genitiveNPCoord)
+  GenitiveCoordTail <$> (try (string "and" *> genitiveNPCoord))
 
 saxonGenitiveTail =
   SaxonGenitiveTail
@@ -278,6 +281,7 @@ complV =
   -- complVPDV <|>
   -- complVCopula
 
+-- | A distransitive complemented verb: gives a card to a customer
 complVDisV =
   ComplVDisV <$> distransitiveV <*> compl <*> compl
 
@@ -298,7 +302,7 @@ phrasalTransitiveV =
 
 -- | Complemented non-copula verb, e.g. Mary sees him.
 compl =
-  (ComplNP <$> npCoord) <|>
+  try (ComplNP <$> npCoord) <|>
   (ComplPP <$> pp)
 
 -- | An intransitive verb. Takes no complement. E.g. walks.
