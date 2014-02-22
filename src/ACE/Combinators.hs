@@ -17,7 +17,7 @@ string s =
   satisfy
     (\t ->
        case t of
-         Word _ t -> if t == s then Just t else Nothing
+         Word _ t' -> if t' == s then Just t' else Nothing
          _ -> Nothing)
 
 -- | Match a Saxon genitive.
@@ -35,7 +35,7 @@ number =
   satisfy
     (\t ->
        case t of
-         Number _ t -> Just t
+         Number _ t' -> Just t'
          _ -> Nothing)
 
 -- | Quoted string.
@@ -44,7 +44,7 @@ quoted =
   satisfy
     (\t ->
        case t of
-         QuotedString _ t -> Just t
+         QuotedString _ t' -> Just t'
          _ -> Nothing)
 
 -- | A comma.
@@ -87,6 +87,7 @@ satisfy f =
               if s
                  then "genitive 's"
                  else "genitive '"
+            Number _ n -> "number: " ++ show n
         tokenPosition pos t _ =
           setSourceColumn (setSourceLine pos line) col
           where (line,col) = tokenPos t

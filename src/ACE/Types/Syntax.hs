@@ -347,8 +347,8 @@ data Aux
   deriving (Show,Eq)
 
 instance Pretty Aux where
-  pretty s Do = "do"
-  pretty s Does = "does"
+  pretty _ Do = "do"
+  pretty _ Does = "does"
 
 data Coord
   = And -- ^ \"and\"
@@ -356,8 +356,8 @@ data Coord
   deriving (Show,Eq)
 
 instance Pretty Coord where
-  pretty s And = "and"
-  pretty s Or = "or"
+  pretty _ And = "and"
+  pretty _ Or = "or"
 
 data Copula
   = Is -- ^ \"is\"
@@ -365,8 +365,8 @@ data Copula
   deriving (Show,Eq)
 
 instance Pretty Copula where
-  pretty s Is = "is"
-  pretty s Are = "are"
+  pretty _ Is = "is"
+  pretty _ Are = "are"
 
 data Determiner
   = The -- ^ \"the\"

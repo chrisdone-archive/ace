@@ -2,22 +2,21 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE NoMonomorphismRestriction #-}
 
+{-# OPTIONS -fno-warn-missing-signatures #-}
+
 -- | Parsers for ACE syntax types.
 
 module ACE.Parsers where
 
 import ACE.Combinators
-import ACE.Tokenizer (tokenize)
 import ACE.Types.Syntax
 import ACE.Types.Tokens
-import Data.Default
 
 import Control.Applicative
 import Control.Monad hiding (ap)
-import Data.Bifunctor
 import Data.Text (Text)
 import Text.Parsec ()
-import Text.Parsec.Prim (Stream,ParsecT,parse,try,getState)
+import Text.Parsec.Prim (Stream,ParsecT,try,getState)
 
 -- | Parser configuration.
 data ACEParser s m = ACE
@@ -93,12 +92,12 @@ universalTopic =
 compositeSentence =
   compositeSentenceCond <|>
   compositeSentenceNeg <|>
-  compositeSentence
+  compositeSentence'
   where compositeSentenceCond =
           CompositeSentenceCond <$> conditionalSentence
         compositeSentenceNeg =
           CompositeSentenceNeg <$> negatedSentence
-        compositeSentence =
+        compositeSentence' =
           CompositeSentence <$> sentence
 
 conditionalSentence =
@@ -217,13 +216,13 @@ relativeClause =
   RelativeClause <$> vpCoord
 
 vpCoord =
-  do vp <- vp
+  do vp' <- vp
      (try (VPCoord'
-             <$> pure vp
+             <$> pure vp'
              <*> coord
              <*> vpCoord) <|>
       (VPCoordVP
-         <$> pure vp))
+         <$> pure vp'))
 
 genitiveSpecifier =
   (GenitiveSpecifierD <$> determiner) <|>
@@ -261,9 +260,10 @@ adverbialPP =
 possessiveNPCoord =
   PossessiveNPCoordGen <$> genitiveNPCoord
 
+
 genitiveNPCoord =
-  specifier <|> name
-  where specifier =
+  specifier' <|> name
+  where specifier' =
           GenitiveNPCoord
             <$> genitiveSpecifier
             <*> genitiveN'
@@ -341,10 +341,10 @@ phrasalIntransitiveV =
 phrasalParticle =
   PhrasalParticle <$> join (fmap acePhrasalParticle getState)
 
---  | Either a graded adjective coordination (\"better than a duck and
---  faster than a mouse\"), or a noun phrase coordination (\"a goose
---  and an ocelot\"), or a prepositional phrase (\"to a bucket or a
---  kettle\").
+-- | Either a graded adjective coordination (\"better than a duck and
+-- faster than a mouse\"), or a noun phrase coordination (\"a goose
+-- and an ocelot\"), or a prepositional phrase (\"to a bucket or a
+-- kettle\").
 copulaCompl =
   copulaComplAPC <|>
   copulaComplNPC <|>

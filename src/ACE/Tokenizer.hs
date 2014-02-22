@@ -88,7 +88,7 @@ genitive pos =
   optional go
   where
     go =
-      do char '\''
+      do _ <- char '\''
          ms <- peekChar
          case ms of
            Just 's' -> anyChar *> pure (Genitive pos True,second (+1) pos)
@@ -105,8 +105,8 @@ manyWithPos p p' pos =
        (Nothing,_) ->
          return ([],pos)
        (Just x,newpos@(!_,!_)) ->
-         do r <- p' newpos
-            case r of
+         do r' <- p' newpos
+            case r' of
               Nothing ->
                 do (xs,finalpos) <- manyWithPos p p' newpos
                    return (x:xs,finalpos)
