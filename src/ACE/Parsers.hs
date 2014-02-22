@@ -282,6 +282,9 @@ complVPI =
 phrasalParticle =
   PhrasalParticle <$> join (fmap acePhrasalParticle getState)
 
+-- | A phrasal intransitive verb: gets, gives, puts (e.g. gets up,
+-- gives up, puts up). This is customized by
+-- 'acePhrasalIntransitiveV'.
 phrasalIntransitiveV =
   PhrasalIntransitiveV <$> join (fmap acePhrasalIntransitiveV getState)
 
