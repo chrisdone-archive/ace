@@ -70,6 +70,21 @@ parser =
      complVs
      genitiveNP
      possessives
+     specifiers
+
+specifiers =
+  do it "genitiveSpecifier"
+        (parsed genitiveSpecifier "1" ==
+         Right (GenitiveSpecifierN 1))
+     it "genitiveSpecifier"
+        (parsed genitiveSpecifier "a" ==
+         Right (GenitiveSpecifierD A))
+     it "genitiveSpecifier"
+        (parsed genitiveSpecifier "some" ==
+         Right (GenitiveSpecifierD Some))
+     it "genitiveSpecifier"
+        (parsed genitiveSpecifier "his" ==
+         Right (GenitiveSpecifierPPC (PossessivePronounCoord HisHer Nothing)))
 
 possessives =
   do it "possessivePronounCoord"

@@ -203,10 +203,6 @@ saxonGenitiveTail =
     <*> optional (try ((,) <$> genitiveN'
                            <*> saxonGenitiveTail))
 
-saxonGenitiveMarker =
-  fmap (\s -> if s then ApostropheS else Apostrophe)
-       genitive
-
 relativeClause =
   RelativeClause <$> vpCoord
 
@@ -218,11 +214,6 @@ vpCoord =
              <*> vpCoord) <|>
       (VPCoordVP
          <$> pure vp'))
-
-genitiveSpecifier =
-  (GenitiveSpecifierD <$> determiner) <|>
-  (GenitiveSpecifierPPC <$> possessivePronounCoord) <|>
-  (GenitiveSpecifierN <$> number)
 
 genitiveN' =
   GenitiveN'
@@ -252,10 +243,21 @@ adverbialPP =
     <$> preposition
     <*> adverbCoord
 
+-- | Genitive specifier: a, 1, some, his
+genitiveSpecifier =
+  (GenitiveSpecifierD <$> determiner) <|>
+  (GenitiveSpecifierPPC <$> possessivePronounCoord) <|>
+  (GenitiveSpecifierN <$> number)
+
 -- | Either a 'genitiveNPCoord', or a 'possessivePronounCoord'.
 possessiveNPCoord =
   try (PossessiveNPCoordGen <$> genitiveNPCoord) <|>
   (PossessiveNPCoordPronoun <$> possessivePronounCoord)
+
+-- | A \' or \'s saxon genitive.
+saxonGenitiveMarker =
+  fmap (\s -> if s then ApostropheS else Apostrophe)
+       genitive
 
 -- | Possessive pronoun coordination: his and her
 possessivePronounCoord =
