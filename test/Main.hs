@@ -89,21 +89,21 @@ parser =
         (parsed determiner "not every" == Right NotEveryEach)
      it "adjectiveCoord"
         (parsed adjectiveCoord "<intrans-adj>" ==
-         Right (AdjectiveCoord (IntransitiveAdjective "<intrans-adj>")
+         Right (AdjectiveCoord intransAdj
                                Nothing))
      it "adjectiveCoord"
         (parsed adjectiveCoord "<intrans-adj> and <intrans-adj>" ==
-         Right (AdjectiveCoord (IntransitiveAdjective "<intrans-adj>")
-                               (Just (AdjectiveCoord (IntransitiveAdjective "<intrans-adj>")
+         Right (AdjectiveCoord intransAdj
+                               (Just (AdjectiveCoord intransAdj
                                                      Nothing))))
      it "adverbCoord"
         (parsed adverbCoord "<adverb> and <adverb>" ==
-         Right (AdverbCoord (Adverb "<adverb>")
-                            (Just (AdverbCoord (Adverb "<adverb>")
+         Right (AdverbCoord adverb
+                            (Just (AdverbCoord adverb
                                                Nothing))))
      it "ap"
         (parsed ap "<intrans-adj>" ==
-         Right (APIntrans (IntransitiveAdjective "<intrans-adj>")))
+         Right (APIntrans intransAdj))
      it "ap"
         (parsed ap "<trans-adj> <prep> a <noun>" ==
          Right (APTrans (TransitiveAdjective "<trans-adj>")
@@ -111,14 +111,16 @@ parser =
                             (NPCoordUnmarked (UnmarkedNPCoord anoun Nothing)))))
      it "apGrad"
         (parsed apGrad "<intrans-adj> than a <noun>" ==
-         Right (APgradAPThan (APIntrans (IntransitiveAdjective "<intrans-adj>"))
+         Right (APgradAPThan (APIntrans intransAdj)
                              (NPCoordUnmarked (UnmarkedNPCoord anoun Nothing))))
-  where anoun = (NP (SpecifyDeterminer A)
-                    (N' Nothing
-                        (N "<noun>")
-                        Nothing
-                        Nothing
-                        Nothing))
+  where intransAdj = IntransitiveAdjective "<intrans-adj>"
+        adverb = Adverb "<adverb>"
+        anoun = (NP (SpecifyDeterminer A)
+                     (N' Nothing
+                         (N "<noun>")
+                         Nothing
+                         Nothing
+                         Nothing))
 
 -- | Is that left?
 isLeft :: Either a b -> Bool

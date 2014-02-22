@@ -10,6 +10,7 @@ import ACE.Combinators
 import ACE.Tokenizer (tokenize)
 import ACE.Types.Syntax
 import ACE.Types.Tokens
+import Data.Default
 
 import Control.Applicative
 import Control.Monad hiding (ap)
@@ -31,6 +32,21 @@ data ACEParser s m = ACE
   , acePhrasalParticle       :: ParsecT s (ACEParser s m) m Text -- ^ Parser for phrasal particles.
   , acePhrasalIntransitiveV  :: ParsecT s (ACEParser s m) m Text -- ^ Parser for phrasal intransitive verbs.
   }
+
+-- | A default ACE parser configuration. Just fills in all the parsers as blanks: @<noun>@, @<prep>@, etc.
+defaultACEParser :: Stream s m Token => ACEParser s m
+defaultACEParser =
+  ACE { aceIntransitiveAdjective = string "<intrans-adj>"
+      , aceTransitiveAdjective   = string "<trans-adj>"
+      , aceNoun                  = string "<noun>"
+      , acePreposition           = string "<prep>"
+      , aceVariable              = string "<var>"
+      , aceProperName            = string "<proper-name>"
+      , aceAdverb                = string "<adverb>"
+      , aceIntransitiveVerb      = string "<intrans-verb>"
+      , acePhrasalParticle       = string "<pparticle>"
+      , acePhrasalIntransitiveV  = string "<pintrans-verb>"
+      }
 
 specification =
   Specification
@@ -282,6 +298,8 @@ apCoord = apCoordAnd <|> apCoord'
   where apCoordAnd = APCoordAnd <$> try (apGrad <* string "and") <*> apCoord
         apCoord' = APCoord <$> apGrad
 
+-- | A graded adjective. Either comparative adjective phrase ("better
+-- than a potato"), or a simple adjective phrase (see 'ap').
 apGrad = apGradThan <|> apGrad'
   where apGradThan = APgradAPThan <$> try (ap <* string "than") <*> npCoord
         apGrad' = APgradAP <$> ap
@@ -312,6 +330,10 @@ adjectiveCoord =
     <*> optional (string "and" *> adjectiveCoord)
 
 -- | Intransitive adjective: correct, green, valid
+--
+-- The actual parser for this is provided as
+-- 'aceIntransitiveAdjective' in the parser configuration. You can
+-- configure this.
 intransitiveAdjective =
   IntransitiveAdjective <$> join (fmap aceIntransitiveAdjective getState)
 
