@@ -119,6 +119,24 @@ parser =
                                          (NPCoordUnmarked (UnmarkedNPCoord anoun Nothing)))
                            (APCoord (APgradAPThan (APIntrans intransAdj)
                                                   (NPCoordUnmarked (UnmarkedNPCoord anoun Nothing))))))
+     it "copulaCompl"
+        (parsed copulaCompl "<prep> a <noun>" ==
+         Right (CopulaComplPP (PP (Preposition "<prep>")
+                                  (NPCoordUnmarked
+                                     (UnmarkedNPCoord anoun
+                                                      Nothing)))))
+     it "copulaCompl"
+        (parsed copulaCompl "a <noun> and a <noun>" ==
+         Right (CopulaComplNPC (NPCoordUnmarked
+                                  (UnmarkedNPCoord anoun
+                                                   (Just (UnmarkedNPCoord anoun Nothing))))))
+     it "copulaCompl"
+        (parsed copulaCompl "<intrans-adj> than a <noun> and a <noun>" ==
+         Right (CopulaComplAPC
+                  (APCoord
+                     (APgradAPThan (APIntrans intransAdj)
+                                   (NPCoordUnmarked (UnmarkedNPCoord anoun
+                                                                     (Just (UnmarkedNPCoord anoun Nothing))))))))
   where intransAdj = IntransitiveAdjective "<intrans-adj>"
         adverb = Adverb "<adverb>"
         anoun = (NP (SpecifyDeterminer A)

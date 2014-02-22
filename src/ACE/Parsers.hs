@@ -285,6 +285,10 @@ phrasalParticle =
 phrasalIntransitiveV =
   PhrasalIntransitiveV <$> join (fmap acePhrasalIntransitiveV getState)
 
+--  | Either a graded adjective coordination (\"better than a duck and
+--  faster than a mouse\"), or a noun phrase coordination (\"a goose
+--  and an ocelot\"), or a prepositional phrase (\"to a bucket or a
+--  kettle\").
 copulaCompl =
   copulaComplAPC <|>
   copulaComplNPC <|>
@@ -294,7 +298,8 @@ copulaCompl =
         copulaComplNPC = CopulaComplNPC <$> npCoord
         copulaComplPP  = CopulaComplPP  <$> pp
 
--- | A coordination of a graded adjective: \"better than a potato and nicer than some bacon\"
+-- | A coordination of a graded adjective: \"better than a potato and
+-- nicer than some bacon\"
 apCoord = apCoordAnd <|> apCoord'
   where apCoordAnd = APCoordAnd <$> try (apGrad <* string "and") <*> apCoord
         apCoord' = APCoord <$> apGrad
