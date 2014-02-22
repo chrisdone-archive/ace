@@ -206,6 +206,9 @@ saxonGenitiveTail =
 relativeClause =
   RelativeClause <$> vpCoord
 
+-- | A verb phrase coordination is either a 'vp' followed by a 'coord'
+-- and more 'vpCoord', or just a 'vp': walks, walks and runs, bad and
+-- is not valid
 vpCoord =
   do vp' <- vp
      (try (VPCoord'

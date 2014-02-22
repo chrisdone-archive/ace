@@ -141,6 +141,14 @@ verbs =
      it "vp"
         (parsed vp "is not <intrans-verb>" ==
          Right (VPNeg Is (V' Nothing (ComplVIV (IntransitiveV "<intrans-verb>")) [])))
+     it "vpCoord"
+        (parsed vpCoord "<intrans-verb> and is not <intrans-verb>" ==
+         Right (VPCoord' (VP (V' Nothing (ComplVIV (IntransitiveV "<intrans-verb>")) []))
+                         And
+                         (VPCoordVP
+                            (VPNeg Is
+                                   (V' Nothing (ComplVIV (IntransitiveV "<intrans-verb>"))
+                                       [])))))
 
 specifiers =
   do it "genitiveSpecifier"
