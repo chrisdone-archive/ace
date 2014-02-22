@@ -273,15 +273,17 @@ complV =
   -- complVPDV <|>
   -- complVCopula
 
+-- | An intransitive verb. Takes no complement. E.g. walks
 complVIV =
   ComplVIV <$> intransitiveV
 
+-- | A phrasal intransitive verb with a complement, in this case a
+-- particle: gets in, sits up.
 complVPI =
   ComplVPI <$> phrasalIntransitiveV <*> phrasalParticle
 
--- | A phrasal intransitive verb: gets, gives, puts (e.g. gets up,
--- gives up, puts up). This is customized by
--- 'acePhrasalIntransitiveV'.
+-- | A phrasal intransitive verb: gives, sits (e.g. gives up, sits
+-- down). This is customized by 'acePhrasalIntransitiveV'.
 phrasalIntransitiveV =
   PhrasalIntransitiveV <$> join (fmap acePhrasalIntransitiveV getState)
 

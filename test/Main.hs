@@ -137,6 +137,12 @@ parser =
                      (APgradAPThan (APIntrans intransAdj)
                                    (NPCoordUnmarked (UnmarkedNPCoord anoun
                                                                      (Just (UnmarkedNPCoord anoun Nothing))))))))
+     it "complVPI"
+        (parsed complV "<pintrans-verb> <pparticle>" ==
+         Right (ComplVPI (PhrasalIntransitiveV "<pintrans-verb>") (PhrasalParticle "<pparticle>")))
+     it "complVIV"
+        (parsed complV "<intrans-verb>" ==
+         Right (ComplVIV (IntransitiveV "<intrans-verb>")))
   where intransAdj = IntransitiveAdjective "<intrans-adj>"
         adverb = Adverb "<adverb>"
         anoun = (NP (SpecifyDeterminer A)
