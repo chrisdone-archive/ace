@@ -260,7 +260,7 @@ adverbialPP =
 possessiveNPCoord =
   PossessiveNPCoordGen <$> genitiveNPCoord
 
-
+-- | A genitive noun phrase coordination: dave's, a dog's, a man and a dog's
 genitiveNPCoord =
   specifier' <|> name
   where specifier' =

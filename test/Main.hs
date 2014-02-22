@@ -67,6 +67,29 @@ parser =
      ap'
      copulae
      complVs
+     genitiveNP
+
+genitiveNP =
+  do it "genitiveNPCoord"
+        (parsed genitiveNPCoord "<proper-name>'s" ==
+         Right (GenitiveNPCoordName (ProperName "<proper-name>")
+                                    (GenitiveTailSaxonTail (SaxonGenitiveTail ApostropheS Nothing))))
+     it "genitiveNPCoord"
+        (parsed genitiveNPCoord "some <noun>'s" ==
+         Right (GenitiveNPCoord (GenitiveSpecifierD Some)
+                                (GenitiveN' Nothing (N "<noun>") Nothing)
+                                (GenitiveTailSaxonTail (SaxonGenitiveTail ApostropheS Nothing))))
+     it "genitiveNPCoord"
+        (parsed genitiveNPCoord "some <noun> and a <noun>'s" ==
+         Right (GenitiveNPCoord (GenitiveSpecifierD Some)
+                                (GenitiveN' Nothing (N "<noun>") Nothing)
+                                (GenitiveTailCoordtail
+                                   (GenitiveCoordTail
+                                      (GenitiveNPCoord
+                                         (GenitiveSpecifierD A)
+                                         (GenitiveN' Nothing (N "<noun>") Nothing)
+                                         (GenitiveTailSaxonTail
+                                            (SaxonGenitiveTail ApostropheS Nothing)))))))
 
 adjective =
   do it "adjectiveCoord"
