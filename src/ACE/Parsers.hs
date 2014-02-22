@@ -273,6 +273,8 @@ genitiveNPCoord =
             <$> properName
             <*> genitiveTail
 
+-- | A complemented verb. One of 'complVCopula', 'complVPDV',
+-- 'complVDisV', 'complVPV', 'complVPV'', 'complVTV'.
 complV =
   complVIV <|>
   complVPI <|>
