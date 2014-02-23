@@ -9,7 +9,7 @@ module ACE.Types.Syntax where
 
 import ACE.Pretty
 
-import Data.Semigroup
+import Data.Monoid
 import Data.Text (Text)
 import Prelude hiding (String)
 
