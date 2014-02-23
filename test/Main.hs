@@ -119,7 +119,21 @@ noun =
                    Nothing))
 
 relatives =
-  do it "relativeClause"
+  do it "relativeClauseCoord"
+        (parsed relativeClauseCoord "that <intrans-verb> and a <noun> <intrans-verb>" ==
+         Right (RelativeClauseCoord
+                  (RelativeClauseThat
+                     (VPCoordVP (VP (V' Nothing (ComplVIV (IntransitiveV "<intrans-verb>"))
+                                        []))))
+                  (Just (And
+                        ,RelativeClauseCoord
+                          (RelativeClauseNP
+                            (NPCoordUnmarked (UnmarkedNPCoord anoun Nothing))
+                            (VPCoordVP
+                               (VP (V' Nothing (ComplVIV (IntransitiveV "<intrans-verb>"))
+                                       []))))
+                          Nothing))))
+     it "relativeClause"
         (parsed relativeClause "that <intrans-verb>" ==
          Right (RelativeClauseThat (VPCoordVP
                                       (VP (V' Nothing (ComplVIV (IntransitiveV "<intrans-verb>"))

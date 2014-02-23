@@ -163,6 +163,8 @@ pp =
   PP <$> preposition
      <*> npCoord'
 
+-- | A 'relativeClause' coordination: person that walks and cake a
+-- person made.
 relativeClauseCoord =
   RelativeClauseCoord
     <$> relativeClause
