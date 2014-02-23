@@ -36,7 +36,7 @@ data ACEParser s m = ACE
   , acePhrasalIntransitiveV  :: ParsecT s (ACEParser s m) m Text -- ^ Parser for phrasal intransitive verbs.
   }
 
--- | A default ACE parser configuration. Just fills in all the parsers as blanks: @<noun>@, @<prep>@, etc.
+-- | A default ACE parser configuration. Just fills in all the parsers as blanks: @\<noun\>@, @\<prep\>@, etc.
 defaultACEParser :: Stream s m Token => ACEParser s m
 defaultACEParser =
   ACE { aceIntransitiveAdjective   = string "<intrans-adj>"
@@ -97,8 +97,7 @@ universalTopic =
   UniversalTopic <$> universalGlobalQuantor
                  <*> n' False
 
--- | A composite sentence, 'compositeSentenceCond',
--- 'compositeSentenceNeg', or 'compositeSentence''.
+-- | A composite sentence: 'conditionalSentence', 'negatedSentence' or 'sentence'.
 compositeSentence =
   compositeSentenceCond <|>
   compositeSentenceNeg <|>
