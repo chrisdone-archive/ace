@@ -133,15 +133,6 @@ specifier =
 preposition =
   Preposition <$> join (fmap acePreposition getState)
 
-apposCoord =
-  ApposCoord
-    <$> apposition
-    <*> optional (try (string "and" *> apposCoord))
-
-apposition =
-  (AppositionVar <$> variable) <|>
-  (AppositionQuote <$> quotation)
-
 genitiveTail =
   (GenitiveTailSaxonTail <$> saxonGenitiveTail) <|>
   (GenitiveTailCoordtail <$> genitiveCoordTail)
@@ -155,6 +146,17 @@ saxonGenitiveTail =
     <*> optional
           (try ((,) <$> genitiveN'
                     <*> saxonGenitiveTail))
+
+-- | Apposition: either a 'variable' or a 'quotation'.
+apposition =
+  (AppositionVar <$> variable) <|>
+  (AppositionQuote <$> quotation)
+
+-- | A apposition coordination: X and Y.
+apposCoord =
+  ApposCoord
+    <$> apposition
+    <*> optional (try (string "and" *> apposCoord))
 
 -- | A prepositional noun phrase coordination.
 pp =
