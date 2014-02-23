@@ -169,6 +169,9 @@ relativeClauseCoord =
     <*> optional (try ((,) <$> coord
                            <*> relativeClauseCoord))
 
+-- | A noun surrounded by optional 'adjectiveCoord', a noun word 'n',
+-- an optional 'apposCoord', an optional 'ofPP', an optional
+-- 'relativeClauseCoord'.
 n' b =
   N' <$> optional (try adjectiveCoord)
      <*> n
@@ -178,16 +181,21 @@ n' b =
             then pure Nothing
             else optional (try relativeClauseCoord)
 
+-- | Unmarked noun phrase coordination: some thing and a thing.
 unmarkedNPCoord b =
   UnmarkedNPCoord
     <$> np b
     <*> optional (try (string "and" *> unmarkedNPCoord b))
 
+-- | A noun phrase: a thing, some stuff, the thing.
 np b =
   NP <$> specifier
      <*> n' b
 
+-- | A coordinated noun phrase. See 'npCoordX'.
 npCoord = npCoordX False
+
+-- | A coordinated noun phrase. Inside a relative clause. See 'npCoordX'.
 npCoord' = npCoordX True
 
 -- | Relative clause: person that walks, cake a person made, cake that a person made, etc.

@@ -76,6 +76,47 @@ parser =
      verbModifiers
      nouns
      relatives
+     noun
+
+noun =
+  do it "n'"
+        (parsed (n' False) "<noun>" == Right (N' Nothing (N "<noun>") Nothing Nothing Nothing) )
+     it "n'"
+        (parsed (n' False) "<intrans-adj> <noun>" ==
+         Right (N' (Just (AdjectiveCoord (IntransitiveAdjective "<intrans-adj>") Nothing))
+                   (N "<noun>") Nothing Nothing Nothing))
+     it "n'"
+        (parsed (n' False) "<intrans-adj> <noun> <var>" ==
+         Right (N' (Just (AdjectiveCoord (IntransitiveAdjective "<intrans-adj>") Nothing))
+                   (N "<noun>")
+                   (Just (ApposCoord (AppositionVar (Variable "<var>")) Nothing))
+                   Nothing
+                   Nothing))
+     it "n'"
+        (parsed (n' False) "<intrans-adj> <noun> <var> of a <noun> a <noun> <intrans-verb>" ==
+         Right (N' (Just (AdjectiveCoord (IntransitiveAdjective "<intrans-adj>") Nothing))
+                   (N "<noun>")
+                   (Just (ApposCoord (AppositionVar (Variable "<var>")) Nothing))
+                   (Just
+                     (NPCoordUnmarked
+                       (UnmarkedNPCoord
+                         (NP (SpecifyDeterminer A)
+                             (N' Nothing
+                                 (N "<noun>")
+                                 Nothing
+                                 Nothing
+                                 (Just
+                                   (RelativeClauseCoord
+                                     (RelativeClauseNP
+                                       (NPCoordUnmarked (UnmarkedNPCoord anoun Nothing))
+                                       (VPCoordVP
+                                          (VP
+                                             (V' Nothing
+                                                 (ComplVIV (IntransitiveV "<intrans-verb>"))
+                                                 []))))
+                                     Nothing))))
+                         Nothing)))
+                   Nothing))
 
 relatives =
   do it "relativeClause"
