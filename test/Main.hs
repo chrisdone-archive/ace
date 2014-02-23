@@ -85,6 +85,72 @@ sentences =
          Right (ExistentialTopic
                   (ExistentialGlobalQuantor Is)
                   (NPCoordUnmarked (UnmarkedNPCoord anoun Nothing))))
+     it "sentence"
+        (parsed sentence "a <noun> <intrans-verb>" ==
+         Right (Sentence
+                  (NPCoordUnmarked (UnmarkedNPCoord anoun Nothing))
+                  (VPCoordVP (VP (V' Nothing (ComplVIV (IntransitiveV "<intrans-verb>"))
+                                     [])))))
+     it "sentence"
+        (parsed sentence "a <noun> that <intrans-verb> <intrans-verb>" ==
+         Right
+           (Sentence
+              (NPCoordUnmarked
+                 (UnmarkedNPCoord
+                    (NP (SpecifyDeterminer A)
+                        (N' Nothing
+                            (N "<noun>")
+                            Nothing
+                            Nothing
+                            (Just (RelativeClauseCoord
+                                     (RelativeClauseThat
+                                        (VPCoordVP
+                                           (VP
+                                              (V' Nothing
+                                                  (ComplVIV (IntransitiveV "<intrans-verb>"))
+                                                  []))))
+                                     Nothing))))
+                                  Nothing))
+                     (VPCoordVP (VP (V' Nothing (ComplVIV (IntransitiveV "<intrans-verb>"))
+                                        [])))))
+     it "conditionalSentence"
+        (parsed conditionalSentence "if a <noun> <intrans-verb> then some <noun> <intrans-verb>" ==
+         Right (ConditionalSentence
+                  (SentenceCoord
+                     (SentenceCoord_1
+                        (SentenceCoord_2
+                           (SentenceCoord_3
+                              (TopicalizedSentenceComposite
+                                 (CompositeSentence
+                                    (Sentence (NPCoordUnmarked (UnmarkedNPCoord anoun Nothing))
+                                              (VPCoordVP
+                                                 (VP
+                                                    (V' Nothing
+                                                        (ComplVIV (IntransitiveV "<intrans-verb>"))
+                                                        []))))))
+                              Nothing)
+                           Nothing)
+                        Nothing)
+                     Nothing)
+                  (SentenceCoord
+                     (SentenceCoord_1
+                        (SentenceCoord_2
+                           (SentenceCoord_3
+                              (TopicalizedSentenceComposite
+                                 (CompositeSentence
+                                    (Sentence
+                                       (NPCoordUnmarked
+                                          (UnmarkedNPCoord
+                                             (NP (SpecifyDeterminer Some)
+                                                 (N' Nothing (N "<noun>") Nothing Nothing Nothing)) Nothing))
+                                       (VPCoordVP
+                                          (VP (V' Nothing
+                                                  (ComplVIV (IntransitiveV "<intrans-verb>"))
+                                                  []))))))
+                              Nothing)
+                           Nothing)
+                        Nothing)
+                     Nothing)))
 
 noun =
   do it "pp"
