@@ -77,6 +77,14 @@ parser =
      nouns
      relatives
      noun
+     sentences
+
+sentences =
+  do it "existentialTopic"
+        (parsed existentialTopic "there is a <noun>" ==
+         Right (ExistentialTopic
+                  (ExistentialGlobalQuantor Is)
+                  (NPCoordUnmarked (UnmarkedNPCoord anoun Nothing))))
 
 noun =
   do it "pp"

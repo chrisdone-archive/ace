@@ -60,6 +60,12 @@ specification =
     <$> sentenceCoord <* period
     <*> optional (try specification)
 
+-- | A negated sentence: it is not the case that 'sentenceCoord'
+negatedSentence =
+  NegatedSentence
+    <$> (strings ["it","is","not","the","case","that"] *>
+         sentenceCoord)
+
 sentenceCoord =
   SentenceCoord
     <$> sentenceCoord_1
@@ -100,24 +106,22 @@ compositeSentence =
         compositeSentence' =
           CompositeSentence <$> sentence
 
+-- | A condition if 'sentenceCoord' then 'sentenceCoord'.
 conditionalSentence =
   ConditionalSentence
     <$> (string "if" *> sentenceCoord)
     <*> (string "then" *> sentenceCoord)
-
-negatedSentence =
-  NegatedSentence
-    <$> (strings ["it","is","not","the","case","that"] *>
-         sentenceCoord)
 
 sentence =
   Sentence
     <$> npCoord
     <*> vpCoord
 
+-- | Existential topic, a 'existentialGlobalQuantor' and a 'npCoord': there is a chair
 existentialTopic =
-  ExistentialTopic <$> existentialGlobalQuantor
-                   <*> npCoord
+  ExistentialTopic
+    <$> existentialGlobalQuantor
+    <*> npCoord
 
 -- | A noun specifier: \"a\", \"some\", \"1\", \"<proper-name>'s\".
 specifier =
