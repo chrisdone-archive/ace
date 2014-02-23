@@ -7,9 +7,6 @@
 
 module ACE.Types.Syntax where
 
-import ACE.Pretty
-
-import Data.Monoid
 import Data.Text (Text)
 import Prelude hiding (String)
 
@@ -60,12 +57,6 @@ data SentenceCoord_2 =
 
 data SentenceCoord_3 =
   SentenceCoord_3 !TopicalizedSentence !(Maybe SentenceCoord_3)
-  deriving (Show,Eq)
-
--- | Singular/plural.
-data Plurality
-  = Singular
-  | Plural
   deriving (Show,Eq)
 
 -- | A topicalized sentence can start with an existential topic or a
@@ -342,36 +333,20 @@ data ExistentialGlobalQuestionQuantor =
   ExistentialGlobalQuestionQuantor !Copula
   deriving (Show,Eq)
 
-instance Pretty ExistentialGlobalQuestionQuantor where
-  pretty s x =
-    pretty s x <> " there"
-
 data Aux
   = Do -- ^ \"do\"
   | Does -- ^ \"does\"
   deriving (Show,Eq)
-
-instance Pretty Aux where
-  pretty _ Do = "do"
-  pretty _ Does = "does"
 
 data Coord
   = And -- ^ \"and\"
   | Or -- ^ \"or\"
   deriving (Show,Eq)
 
-instance Pretty Coord where
-  pretty _ And = "and"
-  pretty _ Or = "or"
-
 data Copula
   = Is -- ^ \"is\"
   | Are -- ^ \"are\"
   deriving (Show,Eq)
-
-instance Pretty Copula where
-  pretty _ Is = "is"
-  pretty _ Are = "are"
 
 data Determiner
   = The -- ^ \"the\"
@@ -381,7 +356,8 @@ data Determiner
   | No -- ^ \"no\"
   | EveryEach -- ^ \"every\" / \"each\"
   | All -- ^ \"all\"
-  | NotEveryEach -- ^ \"not every\" / \"not each\"
+  | NotEvery -- ^ \"not every\"
+  | NotEach -- ^ \"not each\"
   | NotAll -- ^ \"not all\"
   | Which -- ^ \"which\"
   deriving (Show,Eq)
@@ -404,7 +380,9 @@ data GeneralizedQuantor
   deriving (Show,Eq)
 
 data PossessivePronoun
-  = HisHer -- ^ \"his\" / \"her\" / \"his/her\"
+  = His -- ^ \"his\"
+  | Her -- ^ \"her\"
+  | HisHer -- ^ \"his/her\"
   | Its -- ^ \"its\"
   | Their -- ^ \"their\"
   | HisHerOwn -- ^ \"his own\" / \"her own\" / \"his/her own\"
@@ -442,6 +420,7 @@ data SaxonGenitiveMarker
   deriving (Show,Eq)
 
 data UniversalGlobalQuantor
-  = ForEveryEach -- ^ \"for every\" / \"for each\"
+  = ForEvery -- ^ \"for every\"
+  | ForEach -- ^ \"for each\"
   | ForAll -- ^ \"for all\"
   deriving (Show,Eq)

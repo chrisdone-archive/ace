@@ -8,9 +8,11 @@ module Main where
 
 import ACE.Combinators
 import ACE.Parsers
+import ACE.Pretty
 import ACE.Tokenizer (tokenize)
 import ACE.Types.Syntax
 import ACE.Types.Tokens
+import Data.Text.Lazy.Builder (fromText)
 
 import Control.Applicative
 import Control.Monad hiding (ap)
@@ -31,6 +33,7 @@ spec :: Spec
 spec = do
   describe "tokenizer" tokenizer
   describe "parser" parser
+  describe "printer" printer
 
 -- | Tests for the tokenizer.
 tokenizer :: Spec
@@ -420,18 +423,18 @@ specifiers =
          Right (GenitiveSpecifierD Some))
      it "genitiveSpecifier"
         (parsed genitiveSpecifier "his" ==
-         Right (GenitiveSpecifierPPC (PossessivePronounCoord HisHer Nothing)))
+         Right (GenitiveSpecifierPPC (PossessivePronounCoord His Nothing)))
 
 possessives =
   do it "possessivePronounCoord"
         (parsed possessivePronounCoord "his and her" ==
-         Right (PossessivePronounCoord HisHer (Just (PossessivePronounCoord HisHer Nothing))))
+         Right (PossessivePronounCoord His (Just (PossessivePronounCoord Her Nothing))))
      it "possessivePronounCoord"
         (parsed possessivePronounCoord "its" ==
          Right (PossessivePronounCoord Its Nothing))
      it "possessiveNPCoord"
         (parsed possessiveNPCoord "his and her" ==
-         Right (PossessiveNPCoordPronoun (PossessivePronounCoord HisHer (Just (PossessivePronounCoord HisHer Nothing)))))
+         Right (PossessiveNPCoordPronoun (PossessivePronounCoord His (Just (PossessivePronounCoord Her Nothing)))))
      it "possessiveNPCoord"
         (parsed possessiveNPCoord "a <noun>'s" ==
          Right (PossessiveNPCoordGen
@@ -519,9 +522,9 @@ copulae =
 
 simple =
   do it "universalGlobalQuantor"
-        (parsed universalGlobalQuantor "for every" == Right ForEveryEach)
+        (parsed universalGlobalQuantor "for every" == Right ForEvery)
      it "possessivePronoun"
-        (parsed possessivePronoun "his" == Right HisHer)
+        (parsed possessivePronoun "his" == Right His)
      it "generalizedQuantor"
         (parsed generalizedQuantor "not more than" == Right NotMoreThan)
      it "distributiveMarker"
@@ -542,7 +545,7 @@ simple =
      it "determiner"
         (parsed determiner "the" == Right The)
      it "determiner"
-        (parsed determiner "not every" == Right NotEveryEach)
+        (parsed determiner "not every" == Right NotEvery)
 
 complVs =
   do it "complVPI"
@@ -592,6 +595,86 @@ anoun = (NP (SpecifyDeterminer A)
                  Nothing
                  Nothing))
 
+printer =
+  do isomorphic "existentialTopic" existentialTopic "there is a <noun>"
+     isomorphic "sentence" sentence "a <noun> <intrans-verb>"
+     isomorphic "sentence" sentence "a <noun> that <intrans-verb> <intrans-verb>"
+     isomorphic "conditionalSentence" conditionalSentence "if a <noun> <intrans-verb> then some <noun> <intrans-verb>"
+     isomorphic "universalTopic" universalTopic "for all <noun>"
+     isomorphic "negatedSentence" negatedSentence "it is not the case that a <noun> <intrans-verb>"
+     isomorphic "specification" specification "it is not the case that a <noun> <intrans-verb>."
+     isomorphic "pp" pp "<prep> a <noun>"
+     isomorphic "(n' False)" (n' False) "<noun>"
+     isomorphic "(n' False)" (n' False) "<intrans-adj> <noun>"
+     isomorphic "(n' False)" (n' False) "<intrans-adj> <noun> <var>"
+     isomorphic "(n' False)" (n' False) "<intrans-adj> <noun> <var> of a <noun> a <noun> <intrans-verb>"
+     isomorphic "relativeClauseCoord" relativeClauseCoord "that <intrans-verb> and a <noun> <intrans-verb>"
+     isomorphic "relativeClause" relativeClause "that <intrans-verb>"
+     isomorphic "relativeClause" relativeClause "a <noun> <intrans-verb>"
+     isomorphic "relativeClause" relativeClause "that a <noun> <intrans-verb>"
+     isomorphic "relativeClause" relativeClause "a <noun> a <noun> <intrans-verb>"
+     isomorphic "relativeClause" relativeClause "<prep> a <noun> a <noun> <intrans-verb>"
+     isomorphic "genitiveN'" genitiveN' "<noun> <var>"
+     isomorphic "genitiveN'" genitiveN' "<intrans-adj> and <intrans-adj> <noun> <var>"
+     isomorphic "npCoord" npCoord "each of some <noun>"
+     isomorphic "npCoord" npCoord "some <noun>"
+     isomorphic "vModifier" vModifier "<adverb> and <adverb>"
+     isomorphic "vModifier" vModifier "<prep> a <noun>"
+     isomorphic "vModifier" vModifier "<prep> <adverb> and <adverb>"
+     isomorphic "adverbialPP" adverbialPP "<prep> <adverb> and <adverb>"
+     isomorphic "v'" v' "<intrans-verb>"
+     isomorphic "v'" v' "<trans-verb> <prep> a <noun>"
+     isomorphic "v'" v' "<adverb> <ptrans-verb> <pparticle> <prep> a <noun> <adverb>"
+     isomorphic "vp" vp "<intrans-verb>"
+     isomorphic "vp" vp "is not <intrans-verb>"
+     isomorphic "vpCoord" vpCoord "<intrans-verb> and is not <intrans-verb>"
+     isomorphic "specifier" specifier "<proper-name>'s"
+     isomorphic "specifier" specifier "1"
+     isomorphic "specifier" specifier "a"
+     isomorphic "genitiveSpecifier" genitiveSpecifier "1"
+     isomorphic "genitiveSpecifier" genitiveSpecifier "a"
+     isomorphic "genitiveSpecifier" genitiveSpecifier "some"
+     isomorphic "genitiveSpecifier" genitiveSpecifier "his"
+     isomorphic "possessivePronounCoord" possessivePronounCoord "his and her"
+     isomorphic "possessivePronounCoord" possessivePronounCoord "its"
+     isomorphic "possessiveNPCoord" possessiveNPCoord "his and her"
+     isomorphic "possessiveNPCoord" possessiveNPCoord "a <noun>'s"
+     isomorphic "genitiveNPCoord" genitiveNPCoord "<proper-name>'s"
+     isomorphic "genitiveNPCoord" genitiveNPCoord "some <noun>'s"
+     isomorphic "genitiveNPCoord" genitiveNPCoord "some <noun> and a <noun>'s"
+     isomorphic "adjectiveCoord" adjectiveCoord "<intrans-adj>"
+     isomorphic "adjectiveCoord" adjectiveCoord "<intrans-adj> and <intrans-adj>"
+     isomorphic "adverbCoord" adverbCoord "<adverb> and <adverb>"
+     isomorphic "ap" ap "<intrans-adj>"
+     isomorphic "ap" ap "<trans-adj> <prep> a <noun>"
+     isomorphic "apGrad" apGrad "<intrans-adj> than a <noun>"
+     isomorphic "apCoord" apCoord "<intrans-adj> than a <noun> and <intrans-adj> than a <noun>"
+     isomorphic "copulaCompl" copulaCompl "<prep> a <noun>"
+     isomorphic "copulaCompl" copulaCompl "a <noun> and a <noun>"
+     isomorphic "copulaCompl" copulaCompl "<intrans-adj> than a <noun> and a <noun>"
+     isomorphic "universalGlobalQuantor" universalGlobalQuantor "for every"
+     isomorphic "possessivePronoun" possessivePronoun "his"
+     isomorphic "generalizedQuantor" generalizedQuantor "not more than"
+     isomorphic "distributiveMarker" distributiveMarker "each of"
+     isomorphic "distributiveGlobalQuantor" distributiveGlobalQuantor "for each of"
+     isomorphic "existentialGlobalQuestionQuantor" existentialGlobalQuestionQuantor "is there"
+     isomorphic "existentialGlobalQuantor" existentialGlobalQuantor "there is"
+     isomorphic "numberP" numberP "not more than 5"
+     isomorphic "numberP" numberP "5"
+     isomorphic "determiner" determiner "the"
+     isomorphic "determiner" determiner "not every"
+     isomorphic "complV" complV "<pintrans-verb> <pparticle>"
+     isomorphic "complV" complV "<intrans-verb>"
+     isomorphic "complV" complV "<trans-verb> <prep> a <noun>"
+     isomorphic "complV" complV "<ptrans-verb> <pparticle> a <noun>"
+     isomorphic "complV" complV "<distrans-verb> a <noun> <prep> a <noun>"
+     isomorphic "complV" complV "<pdistrans-verb> a <noun> <pparticle> a <noun>"
+     isomorphic "complV" complV "is a <noun>"
+
+  where isomorphic name parser text =
+          it name
+             (printed parser text == Right (fromText text))
+
 -- | Is that left?
 isLeft :: Either a b -> Bool
 isLeft = either (const True) (const False)
@@ -599,6 +682,8 @@ isLeft = either (const True) (const False)
 -- | Get the parsed result after tokenizing.
 parsed :: Parsec [Token] (ACEParser [Token] Identity) c -> Text -> Either String c
 parsed p = tokenize >=> bimap show id . runP (p <* eof) defaultACEParser "<test>"
+
+printed p = fmap pretty . parsed p
 
 -- | Test a parser.
 testp :: Show a => Parsec [Token] (ACEParser [Token] Identity) a -> Text -> IO ()

@@ -487,8 +487,8 @@ determiner =
   (string "an" *> pure An) <|>
   (string "a" *> pure A) <|>
   (string "some" *> pure Some) <|>
-  (strings ["not","every"] *> pure NotEveryEach) <|>
-  (strings ["not","each"] *> pure NotEveryEach) <|>
+  (strings ["not","every"] *> pure NotEvery) <|>
+  (strings ["not","each"] *> pure NotEach) <|>
   (strings ["not","all"] *> pure NotAll) <|>
   (string "no" *> pure No) <|>
   (string "every" *> pure EveryEach) <|>
@@ -546,8 +546,10 @@ generalizedQuantor =
 
 -- | A possessive pronoun: his, her, his/her.
 possessivePronoun =
-  hisHer <|> its
-  where hisHer =
+  his <|> her <|> hisHer <|> its
+  where his = string "his" *> pure His
+        her = string "her" *> pure Her
+        hisHer =
           (string "his" <|> string "her" <|> string "his/her") *>
           pure HisHer
         its = string "its" *> pure Its
@@ -555,5 +557,6 @@ possessivePronoun =
 -- | A universal global quantor: for every/for each, for all.
 universalGlobalQuantor =
   string "for" *> (everyEach <|> forAll)
-  where everyEach = (string "every" <|> string "each") *> pure ForEveryEach
+  where everyEach = ((string "every" *> pure ForEvery) <|>
+                     (string "each" *> pure ForEach))
         forAll = string "all" *> pure ForAll
