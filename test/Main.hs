@@ -266,7 +266,22 @@ verbs =
                                        [])))))
 
 specifiers =
-  do it "genitiveSpecifier"
+  do it "specifier"
+        (parsed specifier "<proper-name>'s" ==
+         Right (SpecifyPossessive
+                  (PossessiveNPCoordGen
+                     (GenitiveNPCoordName
+                       (ProperName "<proper-name>")
+                       (GenitiveTailSaxonTail
+                          (SaxonGenitiveTail ApostropheS
+                                             Nothing))))))
+     it "specifier"
+        (parsed specifier "1" ==
+         Right (SpecifyNumberP (NumberP Nothing 1)))
+     it "specifier"
+        (parsed specifier "a" ==
+         Right (SpecifyDeterminer A))
+     it "genitiveSpecifier"
         (parsed genitiveSpecifier "1" ==
          Right (GenitiveSpecifierN 1))
      it "genitiveSpecifier"

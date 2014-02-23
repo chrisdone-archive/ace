@@ -119,6 +119,7 @@ existentialTopic =
   ExistentialTopic <$> existentialGlobalQuantor
                    <*> npCoord
 
+-- | A noun specifier: \"a\", \"some\", \"1\", \"<proper-name>'s\".
 specifier =
   specifierDeterminer <|>
   specifierPossessive <|>
