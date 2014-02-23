@@ -55,40 +55,50 @@ defaultACEParser =
       , acePhrasalTransitiveV      = string "<ptrans-verb>"
       }
 
+-- | Some specification. A 'sentenceCoord' followed by a 'period', and
+-- optionally another 'specification'.
 specification =
   Specification
     <$> sentenceCoord <* period
     <*> optional (try specification)
 
+-- | Coordinated sentence, by: or
 sentenceCoord =
   SentenceCoord
     <$> sentenceCoord_1
     <*> optional (try (string "or" *> sentenceCoord))
 
+-- | Coordinated sentence, by: and
 sentenceCoord_1 =
   SentenceCoord_1
     <$> sentenceCoord_2
     <*> optional (try (comma *> string "and" *> sentenceCoord_1))
 
+-- | Coordinated sentence, by: or
 sentenceCoord_2 =
   SentenceCoord_2
     <$> sentenceCoord_3
     <*> optional (try (string "or" *> sentenceCoord_2))
 
+-- | Coordinated sentence, by: and
 sentenceCoord_3 =
   SentenceCoord_3
     <$> topicalizedSentence
     <*> optional (try (string "and" *> sentenceCoord_3))
 
+-- | A topicalized sentence.
 topicalizedSentence =
   (TopicalizedSentenceExistential <$> existentialTopic <*> optional (try sentenceCoord)) <|>
   (TopicalizedSentenceUniversal <$> universalTopic <*> sentenceCoord) <|>
   (TopicalizedSentenceComposite <$> compositeSentence)
 
+-- | A universally quantified topic.
 universalTopic =
   UniversalTopic <$> universalGlobalQuantor
                  <*> n' False
 
+-- | A composite sentence, 'compositeSentenceCond',
+-- 'compositeSentenceNeg', or 'compositeSentence''.
 compositeSentence =
   compositeSentenceCond <|>
   compositeSentenceNeg <|>

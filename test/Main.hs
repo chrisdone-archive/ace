@@ -151,6 +151,60 @@ sentences =
                            Nothing)
                         Nothing)
                      Nothing)))
+     it "universalTopic"
+        (parsed universalTopic "for all <noun>" ==
+         Right (UniversalTopic ForAll (N' Nothing (N "<noun>") Nothing Nothing Nothing)))
+     it "negatedSentence"
+        (parsed negatedSentence "it is not the case that a <noun> <intrans-verb>" ==
+         Right (NegatedSentence
+                  (SentenceCoord
+                     (SentenceCoord_1
+                        (SentenceCoord_2
+                           (SentenceCoord_3
+                              (TopicalizedSentenceComposite
+                                 (CompositeSentence
+                                    (Sentence
+                                       (NPCoordUnmarked
+                                          (UnmarkedNPCoord
+                                             (NP (SpecifyDeterminer A)
+                                                 (N' Nothing (N "<noun>") Nothing Nothing Nothing))
+                                             Nothing))
+                                       (VPCoordVP
+                                          (VP (V' Nothing
+                                                  (ComplVIV (IntransitiveV "<intrans-verb>"))
+                                                  []))))))
+                              Nothing)
+                           Nothing)
+                        Nothing)
+                     Nothing)))
+     it "specification"
+        (parsed specification "it is not the case that a <noun> <intrans-verb>." ==
+         Right
+           (Specification
+              (SentenceCoord
+                 (SentenceCoord_1
+                    (SentenceCoord_2
+                       (SentenceCoord_3
+                          (TopicalizedSentenceComposite
+                             (CompositeSentenceNeg
+                                (NegatedSentence
+                                   (SentenceCoord
+                                      (SentenceCoord_1
+                                         (SentenceCoord_2
+                                            (SentenceCoord_3
+                                               (TopicalizedSentenceComposite
+                                                  (CompositeSentence
+                                                     (Sentence (NPCoordUnmarked (UnmarkedNPCoord anoun Nothing))
+                                                               (VPCoordVP (VP (V' Nothing (ComplVIV (IntransitiveV "<intrans-verb>")) []))))))
+                                               Nothing)
+                                            Nothing)
+                                         Nothing)
+                                      Nothing))))
+                          Nothing)
+                       Nothing)
+                    Nothing)
+                 Nothing)
+              Nothing))
 
 noun =
   do it "pp"
