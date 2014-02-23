@@ -75,6 +75,49 @@ parser =
      adverbs
      verbModifiers
      nouns
+     relatives
+
+relatives =
+  do it "relativeClause"
+        (parsed relativeClause "that <intrans-verb>" ==
+         Right (RelativeClauseThat (VPCoordVP
+                                      (VP (V' Nothing (ComplVIV (IntransitiveV "<intrans-verb>"))
+                                              [])))))
+     it "relativeClause"
+        (parsed relativeClause "a <noun> <intrans-verb>" ==
+         Right (RelativeClauseNP (NPCoordUnmarked
+                                    (UnmarkedNPCoord
+                                       (NP (SpecifyDeterminer A)
+                                           (N' Nothing (N "<noun>") Nothing Nothing Nothing))
+                                    Nothing))
+                                 (VPCoordVP (VP (V' Nothing
+                                                    (ComplVIV (IntransitiveV "<intrans-verb>"))
+                                                    [])))))
+     it "relativeClause"
+        (parsed relativeClause "that a <noun> <intrans-verb>" ==
+         Right (RelativeClauseThatNPVP
+                  (NPCoordUnmarked
+                     (UnmarkedNPCoord
+                        (NP (SpecifyDeterminer A)
+                            (N' Nothing (N "<noun>") Nothing Nothing Nothing)) Nothing))
+                  (VPCoordVP (VP (V' Nothing
+                                     (ComplVIV (IntransitiveV "<intrans-verb>"))
+                                     [])))))
+     it "relativeClause"
+        (parsed relativeClause "a <noun> a <noun> <intrans-verb>" ==
+         Right (RelativeClauseNPVP
+                  (NPCoordUnmarked (UnmarkedNPCoord anoun Nothing))
+                  (NPCoordUnmarked (UnmarkedNPCoord anoun Nothing))
+                  (VPCoordVP (VP (V' Nothing (ComplVIV (IntransitiveV "<intrans-verb>"))
+                                     [])))))
+     it "relativeClause"
+        (parsed relativeClause "<prep> a <noun> a <noun> <intrans-verb>" ==
+         Right (RelativeClausePP
+                  (PP (Preposition "<prep>")
+                      (NPCoordUnmarked (UnmarkedNPCoord anoun Nothing)))
+                  (NPCoordUnmarked (UnmarkedNPCoord anoun Nothing))
+                  (VPCoordVP (VP (V' Nothing (ComplVIV (IntransitiveV "<intrans-verb>"))
+                                     [])))))
 
 nouns =
   do it "genitiveN'"

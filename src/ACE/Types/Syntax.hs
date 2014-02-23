@@ -194,8 +194,12 @@ data SaxonGenitiveTail =
   SaxonGenitiveTail !SaxonGenitiveMarker !(Maybe (GenitiveN',SaxonGenitiveTail))
   deriving (Show,Eq)
 
-data RelativeClause =
-  RelativeClause !VPCoord
+data RelativeClause
+  = RelativeClauseThat !VPCoord
+  | RelativeClauseNP !NPCoord !VPCoord
+  | RelativeClauseThatNPVP !NPCoord !VPCoord
+  | RelativeClauseNPVP !NPCoord !NPCoord !VPCoord
+  | RelativeClausePP !PP !NPCoord !VPCoord
   deriving (Show,Eq)
 
 data VPCoord

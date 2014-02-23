@@ -87,7 +87,7 @@ topicalizedSentence =
 
 universalTopic =
   UniversalTopic <$> universalGlobalQuantor
-                 <*> n'
+                 <*> n' False
 
 compositeSentence =
   compositeSentenceCond <|>
@@ -119,15 +119,6 @@ existentialTopic =
   ExistentialTopic <$> existentialGlobalQuantor
                    <*> npCoord
 
-unmarkedNPCoord =
-  UnmarkedNPCoord
-    <$> np
-    <*> optional (try (string "and" *> unmarkedNPCoord))
-
-np =
-  NP <$> specifier
-     <*> n'
-
 specifier =
   specifierDeterminer <|>
   specifierPossessive <|>
@@ -139,19 +130,8 @@ specifier =
         specifierNumber =
           SpecifyNumberP <$> numberP
 
-n' =
-  N' <$> optional (try adjectiveCoord)
-     <*> n
-     <*> optional (try apposCoord)
-     <*> optional (try ofPP)
-     <*> optional (try relativeClauseCoord)
-
 ofPP =
   string "of" *> npCoord
-
-pp =
-  PP <$> preposition
-     <*> npCoord
 
 preposition =
   Preposition <$> join (fmap acePreposition getState)
@@ -165,12 +145,6 @@ apposition =
   (AppositionVar <$> variable) <|>
   (AppositionQuote <$> quotation)
 
-relativeClauseCoord =
-  RelativeClauseCoord
-    <$> relativeClause
-    <*> optional (try ((,) <$> coord
-                           <*> relativeClauseCoord))
-
 genitiveTail =
   (GenitiveTailSaxonTail <$> saxonGenitiveTail) <|>
   (GenitiveTailCoordtail <$> genitiveCoordTail)
@@ -181,19 +155,56 @@ genitiveCoordTail =
 saxonGenitiveTail =
   SaxonGenitiveTail
     <$> saxonGenitiveMarker
-    <*> optional (try ((,) <$> genitiveN'
-                           <*> saxonGenitiveTail))
+    <*> optional
+          (try ((,) <$> genitiveN'
+                    <*> saxonGenitiveTail))
 
+pp =
+  PP <$> preposition
+     <*> npCoord'
+
+relativeClauseCoord =
+  RelativeClauseCoord
+    <$> relativeClause
+    <*> optional (try ((,) <$> coord
+                           <*> relativeClauseCoord))
+
+n' b =
+  N' <$> optional (try adjectiveCoord)
+     <*> n
+     <*> optional (try apposCoord)
+     <*> optional (try ofPP)
+     <*> if b
+            then pure Nothing
+            else optional (try relativeClauseCoord)
+
+unmarkedNPCoord b =
+  UnmarkedNPCoord
+    <$> np b
+    <*> optional (try (string "and" *> unmarkedNPCoord b))
+
+np b =
+  NP <$> specifier
+     <*> n' b
+
+npCoord = npCoordX False
+npCoord' = npCoordX True
+
+-- | Relative clause: person that walks, cake a person made, cake that a person made, etc.
 relativeClause =
-  RelativeClause <$> vpCoord
+  try (RelativeClauseThat <$> (string "that" *> vpCoord)) <|>
+  try (RelativeClauseNP <$> npCoord' <*> vpCoord) <|>
+  (RelativeClauseThatNPVP <$> (string "that" *> npCoord') <*> vpCoord) <|>
+  try (RelativeClauseNPVP <$> npCoord' <*> npCoord' <*> vpCoord) <|>
+  (RelativeClausePP <$> pp <*> npCoord' <*> vpCoord)
 
 -- | A coordinated noun phrase: each of some customers, some customers
-npCoord =
+npCoordX b =
   distributed <|> unmarked
   where distributed =
-          NPCoordDistributed <$> distributiveMarker <*> unmarkedNPCoord
+          NPCoordDistributed <$> distributiveMarker <*> unmarkedNPCoord b
         unmarked =
-          NPCoordUnmarked <$> unmarkedNPCoord
+          NPCoordUnmarked <$> unmarkedNPCoord b
 
 -- | A variable. Customized by 'aceVariable'.
 variable =
