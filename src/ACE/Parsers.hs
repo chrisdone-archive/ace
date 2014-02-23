@@ -130,9 +130,6 @@ specifier =
         specifierNumber =
           SpecifyNumberP <$> numberP
 
-ofPP =
-  string "of" *> npCoord
-
 preposition =
   Preposition <$> join (fmap acePreposition getState)
 
@@ -208,6 +205,10 @@ relativeClause =
   (RelativeClauseThatNPVP <$> (string "that" *> npCoord') <*> vpCoord) <|>
   try (RelativeClauseNPVP <$> npCoord' <*> npCoord' <*> vpCoord) <|>
   (RelativeClausePP <$> pp <*> npCoord' <*> vpCoord)
+
+-- | An "of" prepositional phrase: of the bank
+ofPP =
+  string "of" *> npCoord
 
 -- | A coordinated noun phrase: each of some customers, some customers
 npCoordX b =
