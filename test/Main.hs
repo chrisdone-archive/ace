@@ -79,7 +79,11 @@ parser =
      noun
 
 noun =
-  do it "n'"
+  do it "pp"
+        (parsed pp "<prep> a <noun>" ==
+         Right (PP (Preposition "<prep>")
+                   (NPCoordUnmarked (UnmarkedNPCoord anoun Nothing))))
+     it "n'"
         (parsed (n' False) "<noun>" == Right (N' Nothing (N "<noun>") Nothing Nothing Nothing) )
      it "n'"
         (parsed (n' False) "<intrans-adj> <noun>" ==

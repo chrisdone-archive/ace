@@ -159,6 +159,7 @@ saxonGenitiveTail =
           (try ((,) <$> genitiveN'
                     <*> saxonGenitiveTail))
 
+-- | A prepositional noun phrase coordination.
 pp =
   PP <$> preposition
      <*> npCoord'
