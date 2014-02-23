@@ -130,16 +130,20 @@ specifier =
         specifierNumber =
           SpecifyNumberP <$> numberP
 
+-- | A preposition. Configured by 'acePreposition'.
 preposition =
   Preposition <$> join (fmap acePreposition getState)
 
+-- | A genitive tail: dave's and a dog's
 genitiveTail =
   (GenitiveTailSaxonTail <$> saxonGenitiveTail) <|>
   (GenitiveTailCoordtail <$> genitiveCoordTail)
 
+-- | A genitive coordination tail: dave's and a dog's
 genitiveCoordTail =
   GenitiveCoordTail <$> (try (string "and" *> genitiveNPCoord))
 
+-- | Genitive tail.
 saxonGenitiveTail =
   SaxonGenitiveTail
     <$> saxonGenitiveMarker
