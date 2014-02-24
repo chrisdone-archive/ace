@@ -1,0 +1,70 @@
+/* topic */
+.ace-universal-topic:before,.ace-universal-topic + span:before,
+.ace-universal-topic:after,.ace-universal-topic + span:after {
+  color: #8f4e8b;
+  font-family: monospace;
+}
+.ace-universal-topic:before,.ace-universal-topic + span:before {
+  content: "(";
+}
+.ace-universal-topic:after,.ace-universal-topic + span:after {
+  content: ")";
+}
+/* variable */
+.ace-variable {
+  font-style: italic;
+  font-family: monospace;
+  color: #555;
+}
+/* conditional */
+.ace-if-if:before,
+.ace-if-then + .ace-sentence:after {
+  color: #20a6ab;
+  font-family: monospace;
+}
+.ace-if-if:before {
+  content: "(";
+}
+.ace-if-then + .ace-sentence:after {
+  content: ")";
+}
+.ace-if-if,.ace-if-then,.ace-relative-clause-that {
+  color: #2e659c;
+}
+.ace-n_ {
+  color: #8f684e;
+}
+.ace-np {
+  color: #c3a043;
+}
+.ace-relative-clause {
+  color: #8f4e8b
+}
+.ace-transitive-v,.ace-intransitive-v,.ace-distransitive-v {
+  color: #444444
+}
+.ace-sentence-and:before, .ace-sentence-or:before,
+.ace-sentence-and:after, .ace-sentence-or:after {
+  color: #aaa;
+  font-family: monospace;
+  font-size: 0.5em;
+}
+.ace-sentence-and:before, .ace-sentence-or:before {
+  content: "{";
+}
+.ace-sentence-and:after, .ace-sentence-or:after {
+  content: "}";
+}
+
+.ace-sentence-and > .ace-sentence:before, .ace-sentence-or > .ace-sentence:before,
+.ace-sentence-and > .ace-sentence:after, .ace-sentence-or > .ace-sentence:after {
+  color: #555;
+  font-family: monospace;
+  font-size: 0.75em;
+}
+.ace-sentence-and > .ace-sentence:before, .ace-sentence-or > .ace-sentence:before {
+  content: "(";
+}
+.ace-sentence-and > .ace-sentence:after, .ace-sentence-or > .ace-sentence:after {
+  content: ")";
+}

@@ -9,6 +9,7 @@ module Main where
 import ACE.Combinators
 import ACE.Parsers
 import ACE.Pretty
+import ACE.Html
 import ACE.Tokenizer (tokenize)
 import ACE.Types.Syntax
 import ACE.Types.Tokens
