@@ -1,5 +1,5 @@
 name:                ace
-version:             0.2
+version:             0.3
 synopsis:            Attempto Controlled English parser and printer
 description:         Attempto Controlled English is a formally defined unambiguous language which
                      is a subset of the English language. This package provides a tokenizer,
@@ -20,7 +20,7 @@ cabal-version:       >=1.8
 
 library
   hs-source-dirs:    src/
-  ghc-options:       -Wall -O0
+  ghc-options:       -Wall -O2
   exposed-modules:   ACE
                      ACE.Types.Syntax
                      ACE.Parsers
