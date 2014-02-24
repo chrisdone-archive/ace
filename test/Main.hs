@@ -12,7 +12,8 @@ import ACE.Pretty
 import ACE.Tokenizer (tokenize)
 import ACE.Types.Syntax
 import ACE.Types.Tokens
-import Data.Text.Lazy.Builder (fromText)
+import Data.Text.Lazy.Builder (fromText,toLazyText)
+import Data.Text.Lazy (toStrict)
 
 import Control.Applicative
 import Control.Monad hiding (ap)
@@ -673,7 +674,8 @@ printer =
 
   where isomorphic name parser text =
           it name
-             (printed parser text == Right (fromText text))
+             ((printed parser text >>= printed parser . toText) == Right (fromText text))
+          where toText = toStrict . toLazyText
 
 -- | Is that left?
 isLeft :: Either a b -> Bool
