@@ -1,5 +1,5 @@
 name:                ace
-version:             0.4
+version:             0.5
 synopsis:            Attempto Controlled English parser and printer
 description:         Attempto Controlled English is a formally defined unambiguous language which
                      is a subset of the English language. This package provides a tokenizer,
@@ -34,7 +34,9 @@ library
                      parsec >= 3.1.5,
                      data-default >= 0.5.3,
                      text >= 0.11.2.0,
-                     base >= 4 && <5
+                     base >= 4 && <5,
+                     blaze-html >= 0.5.1.0,
+                     blaze-markup >= 0.5.2.0
 
 test-suite test
     type: exitcode-stdio-1.0

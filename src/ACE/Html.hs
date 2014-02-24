@@ -6,11 +6,9 @@
 
 module ACE.Html () where
 
-import ACE.Types.Pretty
 import ACE.Types.Syntax
 import Data.Monoid hiding (All)
 import Data.Text (pack)
-import Data.Text.Lazy.Builder
 import Text.Blaze
 import qualified Text.Blaze.Html5.Attributes as A
 import qualified Text.Blaze.Html5 as H
@@ -23,10 +21,7 @@ mtoMarkup x = maybe "" ((x <>) . toMarkup)
 toMarkupm :: ToMarkup a => Markup -> Maybe a -> Markup
 toMarkupm x = maybe "" ((<> x) . toMarkup)
 
--- | Maybe pretty print if anything. Other side.
-toMarkupmf :: ToMarkup a => Markup -> (Markup -> Markup) -> Maybe a -> Markup
-toMarkupmf x f = maybe "" (f . (<> x) . toMarkup)
-
+wrap :: AttributeValue -> H.Html -> H.Html
 wrap cls inner = H.span ! A.title cls ! A.class_ ("ace-" <> cls) $ inner
 
 instance ToMarkup Specification where
