@@ -104,9 +104,13 @@ instance ToMarkup N' where
           mtoMarkup " " mrel)
 
 instance ToMarkup NP where
-  toMarkup (NP s n') =
+  toMarkup x =
     wrap "np"
-         (toMarkup s <> " " <> toMarkup n')
+         (case x of
+            NP s n' -> toMarkup s <> " " <> toMarkup n'
+            NPPro p -> toMarkup p
+            NPProper pn -> toMarkup pn
+            NPVar v -> toMarkup v)
 
 instance ToMarkup N where
   toMarkup (N t) =
@@ -439,29 +443,42 @@ instance ToMarkup PossessivePronoun where
             TheirOwn -> "their own"
             Whose -> "whose")
 
+
+
 instance ToMarkup Pronoun where
   toMarkup p =
     wrap "pronoun"
          (case p of
-            It                   -> "it"
-            HeShe                -> "he/she"
-            Himher               -> "him/her"
-            They                 -> "they"
-            Them                 -> "them"
-            Itself               -> "itself"
-            HimHerSelf           -> "himself/herself"
-            Themselves           -> "themselves"
-            SomeoneSomebody      -> "someone/somebody"
-            Something            -> "something"
-            NoOneNobody          -> "no-one/nobody"
-            NoThing              -> "nothing"
-            EveryoneEverybody    -> "everyone/everybody"
-            Everything           -> "everything"
-            NotEveryoneEverybody -> "not everyone/not everybody"
-            NotEverything        -> "not everything"
-            WhatWho              -> "what/who"
-            Whom                 -> "whom"
-            WhichWho             -> "which/who")
+            It             -> "it"
+            He             -> "he"
+            She            -> "she"
+            HeShe          -> "he/she"
+            Him            -> "him"
+            HerP           -> "her"
+            HimHer         -> "him/her"
+            They           -> "they"
+            Them           -> "them"
+            Itself         -> "itself"
+            Himself        -> "himself"
+            Herself        -> "herself"
+            HimselfHerself -> "himself/herself"
+            Themselves     -> "themselves"
+            Someone        -> "someone"
+            Somebody       -> "somebody"
+            Something      -> "something"
+            NoOne          -> "no one"
+            Nobody         -> "nobody"
+            NoThing        -> "nothing"
+            Everyone       -> "everyone"
+            Everybody      -> "everybody"
+            Everything     -> "everything"
+            NotEveryone    -> "not everyone"
+            NotEverybody   -> "not everybody"
+            NotEverything  -> "not everything"
+            What           -> "what"
+            Who            -> "who"
+            Whom           -> "whom"
+            WhichP         -> "which")
 
 instance ToMarkup SaxonGenitiveMarker where
   toMarkup a =

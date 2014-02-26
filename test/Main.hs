@@ -13,14 +13,14 @@ import ACE.Html
 import ACE.Tokenizer (tokenize)
 import ACE.Types.Syntax
 import ACE.Types.Tokens
-import Data.Text.Lazy.Builder (fromText,toLazyText)
-import Data.Text.Lazy (toStrict)
 
 import Control.Applicative
 import Control.Monad hiding (ap)
 import Control.Monad.Identity hiding (ap)
 import Data.Bifunctor
 import Data.Text (Text)
+import Data.Text.Lazy (toStrict)
+import Data.Text.Lazy.Builder (fromText,toLazyText)
 import Test.HUnit
 import Test.Hspec
 import Text.Parsec (Stream,ParsecT,runP,try,Parsec,ParseError)
@@ -216,6 +216,18 @@ noun =
         (parsed pp "<prep> a <noun>" ==
          Right (PP (Preposition "<prep>")
                    (NPCoordUnmarked (UnmarkedNPCoord anoun Nothing))))
+     it "np"
+        (parsed (np False) "itself" ==
+         Right (NPPro Itself))
+     it "np"
+        (parsed (np False) "1 <noun>" ==
+         Right (NP (SpecifyNumberP (NumberP Nothing 1)) (N' Nothing (N "<noun>") Nothing Nothing Nothing)))
+     it "np"
+        (parsed (np False) "<proper-name>" ==
+         Right (NPProper (ProperName "<proper-name>")))
+     it "np"
+        (parsed (np False) "<var>" ==
+         Right (NPVar (Variable "<var>")))
      it "n'"
         (parsed (n' False) "<noun>" == Right (N' Nothing (N "<noun>") Nothing Nothing Nothing) )
      it "n'"

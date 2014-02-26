@@ -210,8 +210,10 @@ unmarkedNPCoord b =
 
 -- | A noun phrase: a thing, some stuff, the thing.
 np b =
-  NP <$> specifier
-     <*> n' b
+  (NP <$> specifier <*> n' b) <|>
+  (NPPro <$> pronoun) <|>
+  (NPProper <$> properName) <|>
+  (NPVar <$> variable)
 
 -- | A coordinated noun phrase. See 'npCoordX'.
 npCoord = npCoordX False
@@ -516,6 +518,39 @@ existentialGlobalQuestionQuantor =
 aux =
   (string "do" *> pure Do) <|>
   (string "does" *> pure Does)
+
+-- | Pronouns.
+pronoun =
+  (string "it" *> pure It) <|>
+  (string "he" *> pure He) <|>
+  (string "she" *> pure She) <|>
+  (string "he/she" *> pure HeShe) <|>
+  (string "him" *> pure Him) <|>
+  (string "her" *> pure HerP) <|>
+  (string "him/her" *> pure HimHer) <|>
+  (string "they" *> pure They) <|>
+  (string "them" *> pure Them) <|>
+  (string "itself" *> pure Itself) <|>
+  (string "himself" *> pure Himself) <|>
+  (string "herself" *> pure Herself) <|>
+  (string "himself/herself" *> pure HimselfHerself) <|>
+  (string "themselves" *> pure Themselves) <|>
+  (string "someone" *> pure Someone) <|>
+  (string "somebody" *> pure Somebody) <|>
+  (string "something" *> pure Something) <|>
+  (string "no one" *> pure NoOne) <|>
+  (string "nobody" *> pure Nobody) <|>
+  (string "nothing" *> pure NoThing) <|>
+  (string "everyone" *> pure Everyone) <|>
+  (string "everybody" *> pure Everybody) <|>
+  (string "everything" *> pure Everything) <|>
+  (string "not everyone" *> pure NotEveryone) <|>
+  (string "not everybody" *> pure NotEverybody) <|>
+  (string "not everything" *> pure NotEverything) <|>
+  (string "what" *> pure What) <|>
+  (string "who" *> pure Who) <|>
+  (string "whom" *> pure Whom) <|>
+  (string "which" *> pure WhichP)
 
 -- | And/or.
 coord =

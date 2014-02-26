@@ -115,8 +115,11 @@ data N' =
   deriving (Show,Eq)
 
 -- | Noun-phrase.
-data NP =
-  NP !Specifier !N'
+data NP
+  = NP !Specifier !N'
+  | NPPro !Pronoun
+  | NPProper !ProperName
+  | NPVar !Variable
   deriving (Show,Eq)
 
 -- | A noun.
@@ -392,25 +395,36 @@ data PossessivePronoun
   deriving (Show,Eq)
 
 data Pronoun
-  = It -- ^ \"it\"
-  | HeShe -- ^ \"he\" / \"she\"
-  | Himher -- ^ \"him\" / \"her\"
-  | They -- ^ \"they\"
-  | Them -- ^ \"them\"
-  | Itself -- ^ \"itself\"
-  | HimHerSelf -- ^ \"himself\" / \"herself\"
-  | Themselves -- ^ \"themselves\"
-  | SomeoneSomebody -- ^ \"someone\" / \"somebody\"
-  | Something -- ^ \"something\"
-  | NoOneNobody -- ^ \"no one\" / \"nobody\"
-  | NoThing -- ^ \"nothing\"
-  | EveryoneEverybody -- ^ \"everyone\" / \"everybody\"
-  | Everything -- ^ \"everything\"
-  | NotEveryoneEverybody -- ^ \"not everyone\" / \"not everybody\"
-  | NotEverything -- ^ \"not everything\"
-  | WhatWho -- ^ \"what\" / \"who\"
-  | Whom -- ^ \"whom\"
-  | WhichWho -- ^ \"which\" / \"who\"
+  = It
+  | He
+  | She
+  | HeShe
+  | Him
+  | HerP
+  | HimHer
+  | They
+  | Them
+  | Itself
+  | Himself
+  | Herself
+  | HimselfHerself
+  | Themselves
+  | Someone
+  | Somebody
+  | Something
+  | NoOne
+  | Nobody
+  | NoThing
+  | Everyone
+  | Everybody
+  | Everything
+  | NotEveryone
+  | NotEverybody
+  | NotEverything
+  | What
+  | Who
+  | Whom
+  | WhichP
   deriving (Show,Eq)
 
 -- | The Saxon genitive used for possession.
