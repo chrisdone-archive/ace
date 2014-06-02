@@ -11,4 +11,4 @@ interrogative mood. The imperative mood is omitted at this time.
 Interpretation rules, conversion to FoL, or any further analysis is
 not implemented by this library.
 
-This package is a work in progress.
+This package is a work in progress. The lexer and parsers are implemented.
