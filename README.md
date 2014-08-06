@@ -1,4 +1,4 @@
-ace
+ace [![Hackage](https://img.shields.io/hackage/v/ace.svg?style=flat)](https://hackage.haskell.org/package/ace)
 =====
 
 Attempto Controlled English is a formally defined unambiguous language
