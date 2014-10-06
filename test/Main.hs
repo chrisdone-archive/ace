@@ -23,7 +23,7 @@ import Data.Text.Lazy (toStrict)
 import Data.Text.Lazy.Builder (fromText,toLazyText)
 import Test.HUnit
 import Test.Hspec
-import Text.Parsec (Stream,ParsecT,runP,try,Parsec,ParseError)
+import Text.Parsec (Stream,ParsecT,runParser,try,Parsec,ParseError)
 import Text.Parsec.Prim
 
 -- | Test suite entry point, returns exit failure if any test fails.
@@ -696,7 +696,7 @@ isLeft = either (const True) (const False)
 
 -- | Get the parsed result after tokenizing.
 parsed :: Parsec [Token] (ACEParser [Token] Identity) c -> Text -> Either String c
-parsed p = tokenize >=> bimap show id . runP (p <* eof) defaultACEParser "<test>"
+parsed p = tokenize >=> bimap show id . runParser (p <* eof) defaultACEParser "<test>"
 
 printed p = fmap pretty . parsed p
 
