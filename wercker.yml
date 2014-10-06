@@ -1,1 +1,1 @@
-box: wercker/default
+box: ondrapelech/haskell-stackage-preinstalled@0.0.1
