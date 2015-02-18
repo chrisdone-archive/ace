@@ -1,4 +1,6 @@
 {-# LANGUAGE FlexibleContexts #-}
+
+{-# LANGUAGE QuasiQuotes #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE NoMonomorphismRestriction #-}
 
@@ -13,8 +15,10 @@ import ACE.Types.Syntax
 import ACE.Types.Tokens
 
 import Control.Applicative
+import Control.Applicative.QQ.Idiom
 import Control.Monad hiding (ap)
 import Data.Text (Text)
+import GHC.Tuple
 import Text.Parsec ()
 import Text.Parsec.Prim (Stream,ParsecT,try,getState)
 
@@ -58,44 +62,44 @@ defaultACEParser =
 -- | Some specification. A 'sentenceCoord' followed by a 'period', and
 -- optionally another 'specification'.
 specification =
-  Specification
-    <$> sentenceCoord <* period
-    <*> optional (try specification)
+  [i|Specification (sentenceCoord <* period)
+                   (optional (try specification))|]
 
 -- | Coordinated sentence, by: or
 sentenceCoord =
-  SentenceCoord
-    <$> sentenceCoord_1
-    <*> optional (try (string "or" *> sentenceCoord))
+  [i|SentenceCoord
+       sentenceCoord_1
+       (optional (try (string "or" *>
+                       sentenceCoord)))|]
 
 -- | Coordinated sentence, by: and
 sentenceCoord_1 =
-  SentenceCoord_1
-    <$> sentenceCoord_2
-    <*> optional (try (comma *> string "and" *> sentenceCoord_1))
+  [i|SentenceCoord_1
+        sentenceCoord_2
+       (optional (try (comma *> string "and" *> sentenceCoord_1)))|]
 
 -- | Coordinated sentence, by: or
 sentenceCoord_2 =
-  SentenceCoord_2
-    <$> sentenceCoord_3
-    <*> optional (try (string "or" *> sentenceCoord_2))
+  [i|SentenceCoord_2
+        sentenceCoord_3
+       (optional (try (string "or" *> sentenceCoord_2)))|]
 
 -- | Coordinated sentence, by: and
 sentenceCoord_3 =
-  SentenceCoord_3
-    <$> topicalizedSentence
-    <*> optional (try (string "and" *> sentenceCoord_3))
+  [i|SentenceCoord_3
+        topicalizedSentence
+       (optional (try (string "and" *> sentenceCoord_3)))|]
 
 -- | A topicalized sentence.
 topicalizedSentence =
-  (TopicalizedSentenceExistential <$> existentialTopic <*> optional (try sentenceCoord)) <|>
-  (TopicalizedSentenceUniversal <$> universalTopic <*> sentenceCoord) <|>
-  (TopicalizedSentenceComposite <$> compositeSentence)
+  [i|TopicalizedSentenceExistential existentialTopic (optional (try sentenceCoord))|] <|>
+  [i|TopicalizedSentenceUniversal universalTopic sentenceCoord|] <|>
+  [i|TopicalizedSentenceComposite compositeSentence|]
 
 -- | A universally quantified topic.
 universalTopic =
-  UniversalTopic <$> universalGlobalQuantor
-                 <*> n' False
+  [i|UniversalTopic universalGlobalQuantor
+                    (n' False)|]
 
 -- | A composite sentence: 'conditionalSentence', 'negatedSentence' or 'sentence'.
 compositeSentence =
@@ -103,117 +107,106 @@ compositeSentence =
   compositeSentenceNeg <|>
   compositeSentence'
   where compositeSentenceCond =
-          CompositeSentenceCond <$> conditionalSentence
+          [i|CompositeSentenceCond conditionalSentence|]
         compositeSentenceNeg =
-          CompositeSentenceNeg <$> negatedSentence
+          [i|CompositeSentenceNeg negatedSentence|]
         compositeSentence' =
-          CompositeSentence <$> sentence
+          [i|CompositeSentence sentence|]
 
 -- | A negated sentence: it is not the case that 'sentenceCoord'
 negatedSentence =
-  NegatedSentence
-    <$> (strings ["it","is","not","the","case","that"] *>
-         sentenceCoord)
+  [i|NegatedSentence
+       (strings ["it","is","not","the","case","that"] *>
+        sentenceCoord)|]
 
 -- | A condition if 'sentenceCoord' then 'sentenceCoord'.
 conditionalSentence =
-  ConditionalSentence
-    <$> (string "if" *> sentenceCoord)
-    <*> (string "then" *> sentenceCoord)
+  [i|ConditionalSentence
+       (string "if" *> sentenceCoord)
+       (string "then" *> sentenceCoord)|]
 
 -- | Sentence: 'npCoord' 'vpCoord': a cat meows
-sentence =
-  Sentence
-    <$> npCoord
-    <*> vpCoord
+sentence = [i|Sentence npCoord vpCoord|]
 
 -- | Existential topic, a 'existentialGlobalQuantor' and a 'npCoord': there is a chair
 existentialTopic =
-  ExistentialTopic
-    <$> existentialGlobalQuantor
-    <*> npCoord
+  [i|ExistentialTopic existentialGlobalQuantor npCoord|]
 
 -- | A noun specifier: \"a\", \"some\", \"1\", \"<proper-name>'s\".
-specifier =
-  specifierDeterminer <|>
-  specifierPossessive <|>
-  specifierNumber
+specifier = specifierDeterminer <|> specifierPossessive <|> specifierNumber
   where specifierDeterminer =
-          SpecifyDeterminer <$> determiner
+          [i|SpecifyDeterminer determiner|]
         specifierPossessive =
-          SpecifyPossessive <$> possessiveNPCoord
+          [i|SpecifyPossessive possessiveNPCoord|]
         specifierNumber =
-          SpecifyNumberP <$> numberP
+          [i|SpecifyNumberP numberP|]
 
 -- | A preposition. Configured by 'acePreposition'.
 preposition =
-  Preposition <$> join (fmap acePreposition getState)
+  [i|Preposition (join (fmap acePreposition getState)) |]
 
 -- | A genitive tail: dave's and a dog's
 genitiveTail =
-  (GenitiveTailSaxonTail <$> saxonGenitiveTail) <|>
-  (GenitiveTailCoordtail <$> genitiveCoordTail)
+  [i|GenitiveTailSaxonTail saxonGenitiveTail|] <|>
+  [i|GenitiveTailCoordtail genitiveCoordTail|]
 
 -- | A genitive coordination tail: dave's and a dog's
 genitiveCoordTail =
-  GenitiveCoordTail <$> (try (string "and" *> genitiveNPCoord))
+  [i|GenitiveCoordTail (try (string "and" *> genitiveNPCoord))|]
 
 -- | Genitive tail.
 saxonGenitiveTail =
-  SaxonGenitiveTail
-    <$> saxonGenitiveMarker
-    <*> optional
-          (try ((,) <$> genitiveN'
-                    <*> saxonGenitiveTail))
+  [i|SaxonGenitiveTail saxonGenitiveMarker
+                       (optional (try next))|]
+  where next = [i|(,) genitiveN' saxonGenitiveTail|]
 
 -- | Apposition: either a 'variable' or a 'quotation'.
 apposition =
-  (AppositionVar <$> variable) <|>
-  (AppositionQuote <$> quotation)
+  [i|AppositionVar variable|] <|>
+  [i|AppositionQuote quotation|]
 
 -- | A apposition coordination: X and Y.
 apposCoord =
-  ApposCoord
-    <$> apposition
-    <*> optional (try (string "and" *> apposCoord))
+  [i|ApposCoord
+       apposition
+       (optional (try (string "and" *>
+                       apposCoord)))|]
 
 -- | A prepositional noun phrase coordination.
-pp =
-  PP <$> preposition
-     <*> npCoord'
+pp = [i|PP preposition npCoord'|]
 
 -- | A 'relativeClause' coordination: person that walks and cake a
 -- person made.
 relativeClauseCoord =
-  RelativeClauseCoord
-    <$> relativeClause
-    <*> optional (try ((,) <$> coord
-                           <*> relativeClauseCoord))
+  [i|RelativeClauseCoord relativeClause
+                         (optional (try next))|]
+  where next = [i|(,) coord relativeClauseCoord|]
 
 -- | A noun surrounded by optional 'adjectiveCoord', a noun word 'n',
 -- an optional 'apposCoord', an optional 'ofPP', an optional
 -- 'relativeClauseCoord'.
 n' b =
-  N' <$> optional (try adjectiveCoord)
-     <*> n
-     <*> optional (try apposCoord)
-     <*> optional (try ofPP)
-     <*> if b
+  [i|N' (optional (try adjectiveCoord))
+        n
+        (optional (try apposCoord))
+        (optional (try ofPP))
+        (if b
             then pure Nothing
-            else optional (try relativeClauseCoord)
+            else optional (try relativeClauseCoord))|]
 
 -- | Unmarked noun phrase coordination: some thing and a thing.
 unmarkedNPCoord b =
-  UnmarkedNPCoord
-    <$> np b
-    <*> optional (try (string "and" *> unmarkedNPCoord b))
+  [i|UnmarkedNPCoord
+       (np b)
+       (optional (try (string "and" *>
+                       unmarkedNPCoord b)))|]
 
 -- | A noun phrase: a thing, some stuff, the thing.
 np b =
-  (NP <$> specifier <*> n' b) <|>
-  (NPPro <$> pronoun) <|>
-  (NPProper <$> properName) <|>
-  (NPVar <$> variable)
+  [i|NP specifier (n' b)|] <|>
+  [i|NPPro pronoun|] <|>
+  [i|NPProper properName|] <|>
+  [i|NPVar variable|]
 
 -- | A coordinated noun phrase. See 'npCoordX'.
 npCoord = npCoordX False
@@ -223,11 +216,11 @@ npCoord' = npCoordX True
 
 -- | Relative clause: person that walks, cake a person made, cake that a person made, etc.
 relativeClause =
-  try (RelativeClauseThat <$> (string "that" *> vpCoord)) <|>
-  try (RelativeClauseNP <$> npCoord' <*> vpCoord) <|>
-  (RelativeClauseThatNPVP <$> (string "that" *> npCoord') <*> vpCoord) <|>
-  try (RelativeClauseNPVP <$> npCoord' <*> npCoord' <*> vpCoord) <|>
-  (RelativeClausePP <$> pp <*> npCoord' <*> vpCoord)
+  try [i|RelativeClauseThat (string "that" *> vpCoord)|] <|>
+  try [i|RelativeClauseNP npCoord' vpCoord|] <|>
+  [i|RelativeClauseThatNPVP  (string "that" *> npCoord') vpCoord|] <|>
+  try [i|RelativeClauseNPVP npCoord' npCoord' vpCoord|] <|>
+  [i|RelativeClausePP pp npCoord' vpCoord|]
 
 -- | An "of" prepositional phrase: of the bank
 ofPP =
@@ -237,68 +230,59 @@ ofPP =
 npCoordX b =
   distributed <|> unmarked
   where distributed =
-          NPCoordDistributed <$> distributiveMarker <*> unmarkedNPCoord b
+          [i|NPCoordDistributed distributiveMarker (unmarkedNPCoord b)|]
         unmarked =
-          NPCoordUnmarked <$> unmarkedNPCoord b
+          [i|NPCoordUnmarked (unmarkedNPCoord b)|]
 
 -- | A variable. Customized by 'aceVariable'.
 variable =
-  Variable <$> join (fmap aceVariable getState)
+  [i|Variable (join (fmap aceVariable getState))|]
 
 -- | A proper name. Customized by 'aceProperName'.
 properName =
-  ProperName <$> join (fmap aceProperName getState)
+  [i|ProperName (join (fmap aceProperName getState))|]
 
 -- | Some quotation: \"foo bar\"
 quotation =
-  Quotation <$> quoted
+  [i|Quotation quoted|]
 
 -- | A noun. Customized by 'aceNoun'.
 n =
-  N <$> join (fmap aceNoun getState)
+  [i|N (join (fmap aceNoun getState))|]
 
 -- | A verb phrase coordination is either a 'vp' followed by a 'coord'
 -- and more 'vpCoord', or just a 'vp': walks, walks and runs, bad and
 -- is not valid
 vpCoord =
   do vp' <- vp
-     (try (VPCoord'
-             <$> pure vp'
-             <*> coord
-             <*> vpCoord) <|>
-      (VPCoordVP
-         <$> pure vp'))
+     (try [i|VPCoord' (pure vp') coord vpCoord|] <|>
+      [i|VPCoordVP (pure vp')|])
 
 -- | A verb phrase. Can be normal 'v'' or a 'copula' followed by
 -- \"not\" then 'v'': walks, is not valid, etc.
 vp =
-  try (VP <$> v') <|>
-  (VPNeg <$> (copula <* string "not") <*> v')
+  try [i|VP v'|] <|>
+  [i|VPNeg (copula <* string "not") v'|]
 
 -- | A genitive noun: dog, red cat, person 1, movie \"We Need to Talk
 -- About Kevin\".
 genitiveN' =
-  GenitiveN'
-    <$> optional (try adjectiveCoord)
-    <*> n
-    <*> optional (try apposCoord)
+  [i|GenitiveN' (optional (try adjectiveCoord))
+                n
+                (optional (try apposCoord))|]
 
 -- | A verb modifier: quickly and loudly, to a house, from now and forever
-vModifier =
-  vModifierVC <|> try vModifierPP <|> vModifierAVPP
+vModifier = vModifierVC <|> try vModifierPP <|> vModifierAVPP
   where vModifierVC =
-          VModifierVC <$> adverbCoord
-        vModifierPP =
-          VModifierPP <$> pp
+          [i|VModifierVC adverbCoord|]
+        vModifierPP = [i|VModifierPP pp|]
         vModifierAVPP =
-          VModifierAVPP <$> adverbialPP
+          [i|VModifierAVPP adverbialPP|]
 
 -- | Adverbial prepositional phrase: until here, by then, until now
 -- and then
 adverbialPP =
-  AdverbialPP
-    <$> preposition
-    <*> adverbCoord
+  [i|AdverbialPP preposition adverbCoord|]
 
 -- | A verb. Consists of an optional 'adverbCoord', a complemented
 -- verb ('complV'), and one or more verb modifiers.
@@ -306,20 +290,20 @@ adverbialPP =
 -- TODO: I'm not actually sure whether it should be zero-to-1 or
 -- zero-to-many. The paper isn't clear what VModifier* means.
 v' =
-  V' <$> optional (try adverbCoord)
-     <*> complV
-     <*> many (try vModifier)
+  [i|V' (optional (try adverbCoord))
+        complV
+        (many (try vModifier))|]
 
 -- | Genitive specifier: a, 1, some, his
 genitiveSpecifier =
-  (GenitiveSpecifierD <$> determiner) <|>
-  (GenitiveSpecifierPPC <$> possessivePronounCoord) <|>
-  (GenitiveSpecifierN <$> number)
+  [i|GenitiveSpecifierD determiner|] <|>
+  [i|GenitiveSpecifierPPC possessivePronounCoord|] <|>
+  [i|GenitiveSpecifierN number|]
 
 -- | Either a 'genitiveNPCoord', or a 'possessivePronounCoord'.
 possessiveNPCoord =
-  try (PossessiveNPCoordGen <$> genitiveNPCoord) <|>
-  (PossessiveNPCoordPronoun <$> possessivePronounCoord)
+  try [i|PossessiveNPCoordGen genitiveNPCoord|] <|>
+  [i|PossessiveNPCoordPronoun possessivePronounCoord|]
 
 -- | A \' or \'s saxon genitive.
 saxonGenitiveMarker =
@@ -328,22 +312,17 @@ saxonGenitiveMarker =
 
 -- | Possessive pronoun coordination: his and her
 possessivePronounCoord =
-  PossessivePronounCoord
-    <$> possessivePronoun
-    <*> optional (try (string "and" *> possessivePronounCoord))
+  [i|PossessivePronounCoord
+       possessivePronoun
+       (optional (try (string "and" *>
+                       possessivePronounCoord)))|]
 
 -- | A genitive noun phrase coordination: dave's, a dog's, a man and a dog's
-genitiveNPCoord =
-  specifier' <|> name
+genitiveNPCoord = specifier' <|> name
   where specifier' =
-          GenitiveNPCoord
-            <$> genitiveSpecifier
-            <*> genitiveN'
-            <*> genitiveTail
+          [i|GenitiveNPCoord genitiveSpecifier genitiveN' genitiveTail|]
         name =
-          GenitiveNPCoordName
-            <$> properName
-            <*> genitiveTail
+          [i|GenitiveNPCoordName properName genitiveTail|]
 
 -- | A complemented verb. One of 'complVCopula', 'complVPDV',
 -- 'complVDisV', 'complVPV', 'complVPV'', 'complVTV'.
@@ -359,117 +338,120 @@ complV =
 
 -- | A complemented copula: is valid
 complVCopula =
-  ComplVCopula <$> copula <*> copulaCompl
+  [i|ComplVCopula copula copulaCompl|]
 
 -- | A distransitive phrasal verb: puts an error down to a customer
 complVPDV =
-  ComplVPDV <$> phrasalDistransitiveV <*> compl <*> phrasalParticle <*> compl
+  [i|ComplVPDV phrasalDistransitiveV compl phrasalParticle compl|]
 
 -- | A distransitive complemented verb: gives a card to a customer
 complVDisV =
-  ComplVDisV <$> distransitiveV <*> compl <*> compl
+  [i|ComplVDisV distransitiveV compl compl|]
 
 -- | A complemented phrasal transitive verb: gives away a code
 complVPV =
-  ComplVPV <$> phrasalTransitiveV <*> phrasalParticle <*> compl
+  [i|ComplVPV phrasalTransitiveV phrasalParticle compl|]
 
 -- | A complemented phrasal transitive verb, flipped: gives a code away
 complVPV' =
-  ComplVPV' <$> phrasalTransitiveV <*> compl <*> phrasalParticle
+  [i|ComplVPV' phrasalTransitiveV compl phrasalParticle|]
 
 -- | Complemented transitive verb: inserts a card
 complVTV =
-  ComplVTV <$> transitiveV <*> compl
+  [i|ComplVTV transitiveV compl|]
 
 -- | A phrasal distransitive verb: puts an error down to a customer
 phrasalDistransitiveV =
-  PhrasalDistransitiveV <$> join (fmap acePhrasalDistransitiveV getState)
+  [i|PhrasalDistransitiveV (join (fmap acePhrasalDistransitiveV getState))|]
 
 -- | A phrasal transitive verb: give away a thing
 phrasalTransitiveV =
-  PhrasalTransitiveV <$> join (fmap acePhrasalTransitiveV getState)
+  [i|PhrasalTransitiveV (join (fmap acePhrasalTransitiveV getState))|]
 
 -- | Complemented non-copula verb, e.g. Mary sees him.
 compl =
-  try (ComplNP <$> npCoord) <|>
-  (ComplPP <$> pp)
+  try [i|ComplNP npCoord|] <|>
+  [i|ComplPP pp|]
 
 -- | An intransitive verb. Takes no complement. E.g. walks.
 complVIV =
-  ComplVIV <$> intransitiveV
+  [i|ComplVIV intransitiveV|]
 
 -- | A phrasal intransitive verb with a complement, in this case a
 -- particle: gets in, sits up.
 complVPI =
-  ComplVPI <$> phrasalIntransitiveV <*> phrasalParticle
+  [i|ComplVPI phrasalIntransitiveV phrasalParticle|]
 
 -- | A phrasal intransitive verb: gives, sits (e.g. gives up, sits
 -- down). This is customized by 'acePhrasalIntransitiveV'.
 phrasalIntransitiveV =
-  PhrasalIntransitiveV <$> join (fmap acePhrasalIntransitiveV getState)
+  [i|PhrasalIntransitiveV (join (fmap acePhrasalIntransitiveV getState))|]
 
 -- | A phrasal verb particle, e.g. in, up, out (get in, get up, get
 -- out). This is customized via 'acePhrasalParticle'.
 phrasalParticle =
-  PhrasalParticle <$> join (fmap acePhrasalParticle getState)
+  [i|PhrasalParticle (join (fmap acePhrasalParticle getState))|]
 
 -- | Either a graded adjective coordination (\"better than a duck and
 -- faster than a mouse\"), or a noun phrase coordination (\"a goose
 -- and an ocelot\"), or a prepositional phrase (\"to a bucket or a
 -- kettle\").
-copulaCompl =
-  copulaComplAPC <|>
-  copulaComplNPC <|>
-  copulaComplPP
-
-  where copulaComplAPC = CopulaComplAPC <$> apCoord
-        copulaComplNPC = CopulaComplNPC <$> npCoord
-        copulaComplPP  = CopulaComplPP  <$> pp
+copulaCompl = copulaComplAPC <|> copulaComplNPC <|> copulaComplPP
+  where copulaComplAPC =
+          [i|CopulaComplAPC apCoord|]
+        copulaComplNPC =
+          [i|CopulaComplNPC npCoord|]
+        copulaComplPP = [i|CopulaComplPP pp|]
 
 -- | A coordination of a graded adjective: \"better than a potato and
 -- nicer than some bacon\"
 apCoord = apCoordAnd <|> apCoord'
-  where apCoordAnd = APCoordAnd <$> try (apGrad <* string "and") <*> apCoord
-        apCoord' = APCoord <$> apGrad
+  where apCoordAnd = [i|APCoordAnd (try (apGrad <* string "and")) apCoord|]
+        apCoord' = [i|APCoord apGrad|]
 
 -- | A graded adjective. Either comparative adjective phrase (\"better
 -- than a potato\"), or a simple adjective phrase (see 'ap').
 apGrad = apGradThan <|> apGrad'
-  where apGradThan = APgradAPThan <$> try (ap <* string "than") <*> npCoord
-        apGrad' = APgradAP <$> ap
+  where apGradThan =
+          [i|APgradAPThan
+               (try (ap <*
+                     string "than"))
+               npCoord|]
+        apGrad' = [i|APgradAP ap|]
 
 -- | An adjective phrase. Transitive (fond of Mary, interested in an
 -- account) or intransitive (correct, green, valid).
 ap =
-  (APTrans <$> transitiveAdjective <*> pp) <|>
-  (APIntrans <$> intransitiveAdjective)
+  [i|APTrans transitiveAdjective pp|] <|>
+  [i|APIntrans intransitiveAdjective|]
 
 -- | Some intransitive verb: walks
 intransitiveV =
-  IntransitiveV <$> join (fmap aceIntransitiveVerb getState)
+  [i|IntransitiveV (join (fmap aceIntransitiveVerb getState))|]
 
 -- | Some transitive verb: inserts
 transitiveV =
-  TransitiveV <$> join (fmap aceTransitiveVerb getState)
+  [i|TransitiveV (join (fmap aceTransitiveVerb getState))|]
 
 -- | Some distransitive verb: inserts
 distransitiveV =
-  DistransitiveV <$> join (fmap aceDistransitiveVerb getState)
+  [i|DistransitiveV (join (fmap aceDistransitiveVerb getState))|]
 
 -- | Adverb coordination: quickly and hastily and manually
 adverbCoord =
-  AdverbCoord <$> adverb
-              <*> optional (try (string "and" *> adverbCoord))
+  [i|AdverbCoord
+       adverb
+       (optional (try (string "and" *> adverbCoord)))|]
 
 -- | Adverb: quickly
 adverb =
-  Adverb <$> join (fmap aceAdverb getState)
+  [i|Adverb (join (fmap aceAdverb getState))|]
 
 -- | Adjective coordination: correct and green
 adjectiveCoord =
-  AdjectiveCoord
-    <$> intransitiveAdjective
-    <*> optional (try (string "and" *> adjectiveCoord))
+  [i|AdjectiveCoord
+       intransitiveAdjective
+       (optional (try (string "and" *> adjectiveCoord)))|]
 
 -- | Intransitive adjective: correct, green, valid
 --
@@ -477,11 +459,11 @@ adjectiveCoord =
 -- 'aceIntransitiveAdjective' in the parser configuration. You can
 -- configure this.
 intransitiveAdjective =
-  IntransitiveAdjective <$> join (fmap aceIntransitiveAdjective getState)
+  [i|IntransitiveAdjective (join (fmap aceIntransitiveAdjective getState))|]
 
 -- | Transitive adjective: correct, green, valid
 transitiveAdjective =
-  TransitiveAdjective <$> join (fmap aceTransitiveAdjective getState)
+  [i|TransitiveAdjective (join (fmap aceTransitiveAdjective getState))|]
 
 -- | A determiner: the, an, not every, etc.
 determiner =
@@ -500,18 +482,16 @@ determiner =
 
 -- | A number phrase: more than 5
 numberP =
-  NumberP
-    <$> optional (try generalizedQuantor)
-    <*> number
+  [i|NumberP (optional (try generalizedQuantor)) number|]
 
 -- | There is/are.
 existentialGlobalQuantor =
   string "there" *>
-  (ExistentialGlobalQuantor <$> copula)
+  [i|ExistentialGlobalQuantor copula|]
 
 -- | Is/are there?
 existentialGlobalQuestionQuantor =
-  (ExistentialGlobalQuestionQuantor <$> copula) <*
+  [i|ExistentialGlobalQuestionQuantor copula|] <*
   string "there"
 
 -- | Do/does.

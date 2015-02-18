@@ -30,13 +30,15 @@ library
                      ACE.Types.Pretty
                      ACE.Pretty
                      ACE.Html
-  build-depends:     attoparsec >= 0.10.4.0,
-                     parsec >= 3.1.5,
-                     data-default >= 0.5.3,
-                     text >= 0.11.2.0,
-                     base >= 4 && <5,
-                     blaze-html >= 0.5.1.0,
-                     blaze-markup >= 0.5.2.0
+  build-depends:     applicative-quoters
+                   , attoparsec >= 0.10.4.0
+                   , base >= 4 && <5
+                   , blaze-html >= 0.5.1.0
+                   , blaze-markup >= 0.5.2.0
+                   , data-default >= 0.5.3
+                   , ghc-prim
+                   , parsec >= 3.1.5
+                   , text >= 0.11.2.0
 
 test-suite test
     type: exitcode-stdio-1.0
